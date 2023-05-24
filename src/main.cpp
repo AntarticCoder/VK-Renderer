@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include <app-context/vk_application_context.h>
+#include <app-context/vk_swapchain.h>
 
 int main()
 {
@@ -13,9 +14,15 @@ int main()
 
     VulkanApplicationContext context;
     context.Initialize(info);
+    
+    VulkanSwapchain swapchain(context);
+    swapchain.CreateSwapchain();
 
-    while(glfwWindowShouldClose(context.GetWindow())) 
+    while(!glfwWindowShouldClose(context.GetWindow())) 
     {
         glfwPollEvents();
     }
+
+    swapchain.Destroy();
+    return 0;
 }

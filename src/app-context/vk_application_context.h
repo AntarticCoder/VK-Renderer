@@ -21,15 +21,6 @@ struct VulkanQueueFamilyIndices
     bool Complete() { return graphicsFamily.has_value() && presentFamily.has_value(); }
 };
 
-struct VulkanSwapChainSupportDetails
-{
-    VkSurfaceCapabilitiesKHR capabilities;
-    std::vector<VkSurfaceFormatKHR> formats;
-    std::vector<VkPresentModeKHR> presentModes;
-
-    bool AdequateSwapchain() { return !formats.empty() && !presentModes.empty(); }
-};
-
 class VulkanApplicationContext
 {
 private:
@@ -42,6 +33,8 @@ private:
     VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
     VkDevice logicalDevice;
     VkSurfaceKHR surface;
+
+    VulkanQueueFamilyIndices queueFamilyIndices;
 
     VkSwapchainKHR swapchain;
     std::vector<VkImage> swapchainImages;
@@ -56,23 +49,21 @@ private:
     int RatePhysicalDevice(VkPhysicalDevice device);
     VulkanQueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device);
     bool CheckForDeviceExtensions(VkPhysicalDevice device);
-    VulkanSwapChainSupportDetails QuerySwapchainSupport(VkPhysicalDevice device);
-
-    VkSurfaceFormatKHR ChooseSwapchainSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
-    VkPresentModeKHR ChooseSwapchainPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
-    VkExtent2D ChooseSwapchainExtent(const VkSurfaceCapabilitiesKHR& capabilities);
+    bool SwapchainSupported(VkPhysicalDevice device);
 
     void CreateWindow(int width, int height, std::string title);
+    void CreateSurface();
     void CreateInstance();
     void SelectPhysicalDevice();
     void CreateDevice();
-    void CreateSurface();
-    void CreateSwapchain();
-    void CreateImageViews();
 public:
     void Initialize(VulkanApplicationInfo info);
     void Destroy() {}
 
     GLFWwindow* GetWindow() { return window; }
+    VkSurfaceKHR GetSurface() { return surface; }
     VkInstance GetInstance() { return instance; }
+    VkPhysicalDevice GetPhysicalDevice() { return physicalDevice; }
+    VkDevice GetLogicalDevice() { return logicalDevice; }
+    VulkanQueueFamilyIndices GetQueueFamilyIndices() { return queueFamilyIndices; }
 };
