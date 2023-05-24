@@ -31,7 +31,7 @@ VkExtent2D VulkanSwapchain::ChooseSwapchainExtent(const VkSurfaceCapabilitiesKHR
     else
     {
         int width, height;
-        glfwGetFramebufferSize(appContext->GetWindow(), &width, &height);
+        glfwGetFramebufferSize(window->GetWindow(), &width, &height);
 
         VkExtent2D actualExtent =
         {
@@ -49,26 +49,26 @@ VulkanSwapchainSupportDetails VulkanSwapchain::GetSwapchainSupportDetails()
 {
     VulkanSwapchainSupportDetails details;
 
-    VkPhysicalDevice device = appContext->GetPhysicalDevice();
-    VkSurfaceKHR surface = appContext->GetSurface();
+    VkPhysicalDevice physicalDevice = device->GetPhysicalDevice();
+    VkSurfaceKHR surface = window->GetSurface();
 
     uint32_t formatCount;
     uint32_t presentModeCount;
 
-    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &details.capabilities);
-    vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, nullptr);
-    vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, nullptr);
+    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &details.capabilities);
+    vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, nullptr);
+    vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, nullptr);
 
     if (formatCount != 0)
     {
         details.formats.resize(formatCount);
-        vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, details.formats.data());
+        vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, details.formats.data());
     }
 
     if (presentModeCount != 0)
     {
         details.presentModes.resize(presentModeCount);
-        vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, details.presentModes.data());
+        vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, details.presentModes.data());
     }
     return details;
 }
@@ -97,7 +97,7 @@ void VulkanSwapchain::CreateImageViews()
         createInfo.subresourceRange.baseArrayLayer = 0;
         createInfo.subresourceRange.layerCount = 1;
 
-        VkResult result = vkCreateImageView(appContext->GetLogicalDevice(), &createInfo, nullptr, &swapchainImageViews[i]);
+        VkResult result = vkCreateImageView(device->GetLogicalDevice(), &createInfo, nullptr, &swapchainImageViews[i]);
         VK_CHECK(result);
     }
     return;
@@ -105,10 +105,11 @@ void VulkanSwapchain::CreateImageViews()
 
 void VulkanSwapchain::CreateSwapchain()
 {
+    assert(!intialized);
     VulkanSwapchainSupportDetails swapChainSupport = GetSwapchainSupportDetails();
-    VulkanQueueFamilyIndices indices = appContext->GetQueueFamilyIndices();
-    VkDevice logicalDevice = appContext->GetLogicalDevice();
-    VkSurfaceKHR surface = appContext->GetSurface();
+    VulkanQueueFamilyIndices indices = device->FindQueueFamilies(device->GetPhysicalDevice());
+    VkDevice logicalDevice = device->GetLogicalDevice();
+    VkSurfaceKHR surface = window->GetSurface();
 
     VkSurfaceFormatKHR surfaceFormat = ChooseSwapchainSurfaceFormat(swapChainSupport.formats);
     VkPresentModeKHR presentMode = ChooseSwapchainPresentMode(swapChainSupport.presentModes);
@@ -161,16 +162,20 @@ void VulkanSwapchain::CreateSwapchain()
     vkGetSwapchainImagesKHR(logicalDevice, swapchain, &imageCount, swapchainImages.data());
 
     CreateImageViews();
+
+    intialized = true;
     return;
 }
 
 void VulkanSwapchain::Destroy()
 {
-    VkDevice device = appContext->GetLogicalDevice();
+    assert(intialized);
 
     for(auto imageView : swapchainImageViews)
     {
-        vkDestroyImageView(device, imageView, nullptr);
+        vkDestroyImageView(device->GetLogicalDevice(), imageView, nullptr);
     }
-    vkDestroySwapchainKHR(device, swapchain, nullptr);
+    vkDestroySwapchainKHR(device->GetLogicalDevice(), swapchain, nullptr);
+    
+    intialized = false;
 }

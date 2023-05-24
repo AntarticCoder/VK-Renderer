@@ -2,7 +2,9 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
-#include <app-context/vk_application_context.h>
+#include <app-context/vk_instance.h>
+#include <app-context/vk_window.h>
+#include <app-context/vk_device.h>
 
 struct VulkanSwapchainSupportDetails
 {
@@ -16,7 +18,10 @@ struct VulkanSwapchainSupportDetails
 class VulkanSwapchain
 {
 private:
-    VulkanApplicationContext* appContext;
+    VulkanInstance* appContext;
+    VulkanWindow* window;
+    VulkanDevice* device;
+
     VulkanSwapchainSupportDetails supportDetails;
 
     VkSwapchainKHR swapchain;
@@ -26,6 +31,8 @@ private:
     std::vector<VkImage> swapchainImages;
     std::vector<VkImageView> swapchainImageViews;
 
+    bool intialized = false;
+
     VulkanSwapchainSupportDetails GetSwapchainSupportDetails();
     VkSurfaceFormatKHR ChooseSwapchainSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
     VkPresentModeKHR ChooseSwapchainPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
@@ -33,10 +40,12 @@ private:
 
     void CreateImageViews();
 public:
-    VulkanSwapchain(VulkanApplicationContext context) { appContext = &context; }
-    ~VulkanSwapchain() {}
+    VulkanSwapchain(VulkanInstance* context, VulkanWindow* window, VulkanDevice* device) : appContext(context), window(window), device(device) {}
+    ~VulkanSwapchain()
+    { 
+        if(intialized) { Destroy(); }
+    }
 
     void CreateSwapchain();
-    void RecreateSwapchain() {}
     void Destroy();
 };

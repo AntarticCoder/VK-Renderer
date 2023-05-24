@@ -31,8 +31,10 @@ project(VK-Renderer CXX C)
 add_executable(VK-Renderer
     ${CMAKE_SOURCE_DIR}/src/main.cpp
 
-    ${CMAKE_SOURCE_DIR}/src/app-context/vk_application_context.cpp
+    ${CMAKE_SOURCE_DIR}/src/app-context/vk_instance.cpp
+    ${CMAKE_SOURCE_DIR}/src/app-context/vk_device.cpp
     ${CMAKE_SOURCE_DIR}/src/app-context/vk_swapchain.cpp
+    ${CMAKE_SOURCE_DIR}/src/app-context/vk_window.cpp
 )
 
 target_include_directories(VK-Renderer PRIVATE

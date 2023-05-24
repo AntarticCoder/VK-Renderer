@@ -1,84 +1,14 @@
-#include <iostream>
-#include <vector>
-#include <map>
 #include <set>
 
 #include <utils/vk_utils.h>
-#include <app-context/vk_application_context.h>
+#include <app-context/vk_device.h>
+#include <app-context/vk_window.h>
 
 std::vector<const char*> requiredDeviceExtensions = {
     VK_KHR_SWAPCHAIN_EXTENSION_NAME
 };
 
-void VulkanApplicationContext::CreateWindow(int width, int height, std::string title)
-{
-    windowWidth = width;
-    windowHeight = height;
-    windowTitle = title;
-    
-    glfwInit();
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    window = glfwCreateWindow(windowWidth, windowHeight, windowTitle.c_str(), nullptr, nullptr);
-
-    if(window == NULL) { std::cout << "Failed to create GLFW Window: " << glfwGetError(NULL) << std::endl; }
-}
-
-void VulkanApplicationContext::CreateSurface()
-{
-    VkResult result = glfwCreateWindowSurface(instance, window, nullptr, &surface);
-    VK_CHECK(result);
-}
-
-std::vector<const char*> VulkanApplicationContext::GetInstanceExtensions()
-{
-    uint32_t glfwExtensionCount;
-    const char** glfwExtensions;    
-    glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-
-    std::vector<const char*> instanceExtensions;
-    for(uint32_t i = 0; i < glfwExtensionCount; i++)
-    { 
-        instanceExtensions.emplace_back(glfwExtensions[i]);
-    }
-
-    #ifdef __APPLE__ 
-        instanceExtensions.emplace_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME); 
-    #endif
-
-    instanceExtensions.emplace_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
-    return instanceExtensions;
-}
-
-void VulkanApplicationContext::CreateInstance()
-{
-    VkApplicationInfo applicationInfo = {};
-    applicationInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-    applicationInfo.pApplicationName = "VK Renderer";
-    applicationInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-    applicationInfo.pEngineName = "No Engine";
-    applicationInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-    applicationInfo.apiVersion = VK_API_VERSION_1_0;
-
-    std::vector<const char*> instanceExtensions = GetInstanceExtensions();
-    const std::vector<const char*> validationLayers = { "VK_LAYER_KHRONOS_validation" };
-
-    VkInstanceCreateInfo instanceCreateInfo = {};
-    instanceCreateInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-    instanceCreateInfo.pApplicationInfo = &applicationInfo; 
-    instanceCreateInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
-
-    instanceCreateInfo.enabledExtensionCount = instanceExtensions.size();
-    instanceCreateInfo.ppEnabledExtensionNames = &instanceExtensions[0];
-
-    instanceCreateInfo.enabledLayerCount = validationLayers.size();
-    instanceCreateInfo.ppEnabledLayerNames = &validationLayers[0];
-
-    VkResult result = vkCreateInstance(&instanceCreateInfo, nullptr, &instance);
-    VK_CHECK(result);
-    return;
-}
-
-bool VulkanApplicationContext::CheckForDeviceExtensions(VkPhysicalDevice device)
+bool VulkanDevice::CheckForDeviceExtensions(VkPhysicalDevice device)
 {
     uint32_t extensionCount;
     vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
@@ -92,7 +22,7 @@ bool VulkanApplicationContext::CheckForDeviceExtensions(VkPhysicalDevice device)
     return requiredExtensions.empty();
 }
 
-VulkanQueueFamilyIndices VulkanApplicationContext::FindQueueFamilies(VkPhysicalDevice device)
+VulkanQueueFamilyIndices VulkanDevice::FindQueueFamilies(VkPhysicalDevice device)
 {
     VulkanQueueFamilyIndices indices;
 
@@ -108,7 +38,7 @@ VulkanQueueFamilyIndices VulkanApplicationContext::FindQueueFamilies(VkPhysicalD
         if(queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) { indices.graphicsFamily = i; }
 
         VkBool32 presentSupport = false;
-        vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
+        vkGetPhysicalDeviceSurfaceSupportKHR(device, i, window->GetSurface(), &presentSupport);
 
         if(presentSupport) { indices.presentFamily = i; }
         if(indices.Complete()) { break; }
@@ -118,7 +48,7 @@ VulkanQueueFamilyIndices VulkanApplicationContext::FindQueueFamilies(VkPhysicalD
     return indices;
 }
 
-int VulkanApplicationContext::RatePhysicalDevice(VkPhysicalDevice device)
+int VulkanDevice::RatePhysicalDevice(VkPhysicalDevice device)
 {
     int score = 0;
     VulkanQueueFamilyIndices indices = FindQueueFamilies(device);
@@ -140,14 +70,32 @@ int VulkanApplicationContext::RatePhysicalDevice(VkPhysicalDevice device)
     return score;
 }
 
-void VulkanApplicationContext::SelectPhysicalDevice()
+bool VulkanDevice::SwapchainSupported(VkPhysicalDevice device)
+{
+    VkSurfaceCapabilitiesKHR capabilities;
+    VkSurfaceKHR surface = window->GetSurface();
+
+    uint32_t formatCount;
+    uint32_t presentModeCount;
+
+    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &capabilities);
+    vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, nullptr);
+    vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, nullptr);
+
+    if(formatCount == 0) { return false; }
+    if(presentModeCount == 0) { return false; }
+
+    return true;
+}
+
+void VulkanDevice::SelectPhysicalDevice()
 {
     uint32_t deviceCount;
-    vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
+    vkEnumeratePhysicalDevices(appContext->GetInstance(), &deviceCount, nullptr);
     assert(deviceCount > 0);
 
     std::vector<VkPhysicalDevice> physicalDevices(deviceCount);
-    vkEnumeratePhysicalDevices(instance, &deviceCount, &physicalDevices[0]);
+    vkEnumeratePhysicalDevices(appContext->GetInstance(), &deviceCount, &physicalDevices[0]);
 
     int bestRatedDeviceScore = 0;
     VkPhysicalDevice bestRatedDevice = VK_NULL_HANDLE;
@@ -168,7 +116,7 @@ void VulkanApplicationContext::SelectPhysicalDevice()
     return;
 }
 
-void VulkanApplicationContext::CreateDevice()
+void VulkanDevice::CreateDevice()
 {
     float graphicsQueuePriority = 1.0f;
     float presentQueuePriority = 1.0f;
@@ -208,31 +156,15 @@ void VulkanApplicationContext::CreateDevice()
 
     vkGetDeviceQueue(logicalDevice, queueFamilyIndices.graphicsFamily.value(), 0, &graphicsQueue);
     vkGetDeviceQueue(logicalDevice, queueFamilyIndices.presentFamily.value(), 0, &presentQueue);
+
+    intialized = true;
     return;
 }
 
-bool VulkanApplicationContext::SwapchainSupported(VkPhysicalDevice device)
+void VulkanDevice::Destroy()
 {
-    VkSurfaceCapabilitiesKHR capabilities;
-
-    uint32_t formatCount;
-    uint32_t presentModeCount;
-
-    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &capabilities);
-    vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, nullptr);
-    vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, nullptr);
-
-    if(formatCount == 0) { return false; }
-    if(presentModeCount == 0) { return false; }
-
-    return true;
-}
-
-void VulkanApplicationContext::Initialize(VulkanApplicationInfo info)
-{
-    CreateWindow(info.width, info.height, info.title);
-    CreateInstance();
-    CreateSurface();
-    SelectPhysicalDevice();
-    CreateDevice();
+    assert(intialized);
+    vkDestroyDevice(logicalDevice, nullptr);
+    
+    intialized = false;
 }
