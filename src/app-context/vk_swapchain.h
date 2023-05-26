@@ -48,4 +48,14 @@ public:
 
     void CreateSwapchain();
     void Destroy();
+
+    VkFormat GetFormat() { return swapchainImageFormat; }
+    VkExtent2D GetExtent() { return swapchainExtent; }
+
+    VkSwapchainKHR GetSwapchain() { return swapchain; }
+    std::vector<VkImage> GetImages() { return swapchainImages; }
+    std::vector<VkImageView> GetImageViews() { return swapchainImageViews; }
+
+    int GetSwapchainLength() { return swapchainImages.size(); }
+    int GetSwapchainImageViewLength() { return swapchainImageViews.size(); }
 };

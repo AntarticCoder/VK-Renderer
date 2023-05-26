@@ -51,4 +51,6 @@ public:
 
     VkPhysicalDevice GetPhysicalDevice() { return physicalDevice; }
     VkDevice GetLogicalDevice() { return logicalDevice; }
+
+    VkQueue GetGraphicsQueue() { return graphicsQueue; }
 };

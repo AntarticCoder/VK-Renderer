@@ -5,6 +5,8 @@
 #include <app-context/vk_swapchain.h>
 #include <app-context/vk_window.h>
 
+#include <renderer/vk_renderer.h>
+
 int main()
 {
     std::cout << "Hello World!" << std::endl;
@@ -13,6 +15,7 @@ int main()
     VulkanInstance context;
     VulkanDevice device(&context, &window);
     VulkanSwapchain swapchain(&context, &window, &device);
+    VulkanRenderer renderer(&window, &device, &swapchain);
 
     window.CreateWindow();
     context.CreateInstance();
@@ -21,10 +24,21 @@ int main()
     device.CreateDevice();
     swapchain.CreateSwapchain();
 
+    renderer.CreateCommands();
+    renderer.CreateDefaultRenderPass();
+    renderer.CreateFramebuffers();
+    renderer.IntializeSyncStructures();
+
     while(!glfwWindowShouldClose(window.GetWindow()))
     {
+        renderer.Draw();
         glfwPollEvents();
     }
+
+    renderer.DestroyCommands();
+    renderer.DestroyRenderPass();
+    renderer.DestroyFramebuffers();
+    renderer.DestroySyncStructures();
 
     swapchain.Destroy();
     device.Destroy();
