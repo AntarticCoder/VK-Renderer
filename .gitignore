@@ -1,8 +1,11 @@
 *.o
 *.d
 *.DS_Store
+*.spv
 
 CMakeFiles/
 bin
 build
 CMakeCache.txt
+cmake_install.cmake
+Makefile

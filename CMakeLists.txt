@@ -57,3 +57,6 @@ target_include_directories(VK-Renderer PRIVATE
 
 add_compile_options(-Wno-dev)
 target_link_libraries(VK-Renderer PUBLIC ${Vulkan_LIBRARIES} glfw glm stdc++)
+
+set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CMAKE_COMMAND} -E time")
+set_property(TARGET VK-Renderer PROPERTY RULE_LAUNCH_COMPILE "${CMAKE_COMMAND} -E time")
