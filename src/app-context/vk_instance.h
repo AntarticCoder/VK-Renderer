@@ -14,6 +14,12 @@ private:
 
     std::vector<const char*> GetInstanceExtensions();
 public:
+    VulkanInstance() {}
+    ~VulkanInstance()
+    {
+        if(intialized) { Destroy(); }
+    }
+
     void CreateInstance();
     void Destroy();
 

@@ -19,8 +19,8 @@ struct VulkanQueueFamilyIndices
 class VulkanDevice
 {
 private:
-    VulkanInstance* appContext;
-    VulkanWindow* window;
+    VulkanInstance* appContext = nullptr;
+    VulkanWindow* window = nullptr;
 
     VkPhysicalDevice physicalDevice;
     VkDevice logicalDevice;

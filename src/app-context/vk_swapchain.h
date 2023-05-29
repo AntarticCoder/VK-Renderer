@@ -18,9 +18,9 @@ struct VulkanSwapchainSupportDetails
 class VulkanSwapchain
 {
 private:
-    VulkanInstance* appContext;
-    VulkanWindow* window;
-    VulkanDevice* device;
+    VulkanInstance* appContext = nullptr;
+    VulkanWindow* window = nullptr;
+    VulkanDevice* device = nullptr;
 
     VulkanSwapchainSupportDetails supportDetails;
 
