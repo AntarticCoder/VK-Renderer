@@ -105,7 +105,7 @@ void VulkanSwapchain::CreateImageViews()
 
 void VulkanSwapchain::CreateSwapchain()
 {
-    assert(!intialized);
+    assert(!initialized);
     VulkanSwapchainSupportDetails swapChainSupport = GetSwapchainSupportDetails();
     VulkanQueueFamilyIndices indices = device->FindQueueFamilies(device->GetPhysicalDevice());
     VkDevice logicalDevice = device->GetLogicalDevice();
@@ -163,13 +163,13 @@ void VulkanSwapchain::CreateSwapchain()
 
     CreateImageViews();
 
-    intialized = true;
+    initialized = true;
     return;
 }
 
 void VulkanSwapchain::Destroy()
 {
-    assert(intialized);
+    assert(initialized);
 
     for(auto imageView : swapchainImageViews)
     {
@@ -177,5 +177,5 @@ void VulkanSwapchain::Destroy()
     }
     vkDestroySwapchainKHR(device->GetLogicalDevice(), swapchain, nullptr);
     
-    intialized = false;
+    initialized = false;
 }

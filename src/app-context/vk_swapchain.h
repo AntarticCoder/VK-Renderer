@@ -31,7 +31,7 @@ private:
     std::vector<VkImage> swapchainImages;
     std::vector<VkImageView> swapchainImageViews;
 
-    bool intialized = false;
+    bool initialized = false;
 
     VulkanSwapchainSupportDetails GetSwapchainSupportDetails();
     VkSurfaceFormatKHR ChooseSwapchainSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
@@ -43,7 +43,7 @@ public:
     VulkanSwapchain(VulkanInstance* context, VulkanWindow* window, VulkanDevice* device) : appContext(context), window(window), device(device) {}
     ~VulkanSwapchain()
     { 
-        if(intialized) { Destroy(); }
+        if(initialized) { Destroy(); }
     }
 
     void CreateSwapchain();

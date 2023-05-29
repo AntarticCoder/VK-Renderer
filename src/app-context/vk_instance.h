@@ -10,14 +10,14 @@ class VulkanInstance
 {
 private:
     VkInstance instance;
-    bool intialized = false;
+    bool initialized = false;
 
     std::vector<const char*> GetInstanceExtensions();
 public:
     VulkanInstance() {}
     ~VulkanInstance()
     {
-        if(intialized) { Destroy(); }
+        if(initialized) { Destroy(); }
     }
 
     void CreateInstance();

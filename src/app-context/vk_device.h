@@ -30,7 +30,7 @@ private:
     VkQueue graphicsQueue;
     VkQueue presentQueue;
 
-    bool intialized = false;
+    bool initialized = false;
 
     int RatePhysicalDevice(VkPhysicalDevice device);
     bool CheckForDeviceExtensions(VkPhysicalDevice device);
@@ -39,7 +39,7 @@ public:
     VulkanDevice(VulkanInstance* appContext, VulkanWindow* window) : appContext(appContext), window(window) {}
     ~VulkanDevice()
     {
-        if(intialized) { Destroy(); }
+        if(initialized) { Destroy(); }
     }
 
     VulkanQueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device);

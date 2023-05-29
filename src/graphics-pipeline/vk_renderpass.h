@@ -12,8 +12,7 @@ private:
     VulkanDevice* device;
     VulkanSwapchain* swapchain;
 
-    VkRenderPass renderPass;
-    VkPipelineLayout pipelineLayout;
+    VkRenderPass renderpass;
 
     bool initialized = false;
 public:
@@ -25,4 +24,6 @@ public:
 
     void CreateRenderpass();
     void Destroy();
+
+    VkRenderPass GetRenderPass() { return renderpass; }
 };

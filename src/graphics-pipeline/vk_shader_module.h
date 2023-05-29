@@ -12,6 +12,8 @@ enum VulkanShaderStage
     Fragment
 };
 
+// initialized
+
 class VulkanShaderModule
 {
 private:
@@ -23,12 +25,12 @@ private:
 
     std::string shaderPath;
     std::string shaderEntryPoint; 
-    bool initalized = false;
+    bool initialized = false;
 public:
     VulkanShaderModule(VulkanDevice* device) : device(device) {}
     ~VulkanShaderModule()
     {
-        if(initalized) { Destroy(); }
+        if(initialized) { Destroy(); }
     }
 
     void CreateShaderModule(VulkanShaderStage stage, const std::string filePath, std::string entryPoint = "main");

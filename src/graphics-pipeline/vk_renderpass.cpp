@@ -33,11 +33,16 @@ void VulkanRenderPass::CreateRenderpass()
     renderPassInfo.subpassCount = 1;
     renderPassInfo.pSubpasses = &subpass;
 
-    VkResult result = vkCreateRenderPass(device->GetLogicalDevice(), &renderPassInfo, nullptr, &renderPass);
+    VkResult result = vkCreateRenderPass(device->GetLogicalDevice(), &renderPassInfo, nullptr, &renderpass);
     VK_CHECK(result);
+
+    initialized = true;
 }
 
 void VulkanRenderPass::Destroy()
 {
-    vkDestroyRenderPass(device->GetLogicalDevice(), renderPass, nullptr);
+    assert(initialized);
+    vkDestroyRenderPass(device->GetLogicalDevice(), renderpass, nullptr);
+
+    initialized = false;
 }

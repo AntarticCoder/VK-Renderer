@@ -157,14 +157,14 @@ void VulkanDevice::CreateDevice()
     vkGetDeviceQueue(logicalDevice, queueFamilyIndices.graphicsFamily.value(), 0, &graphicsQueue);
     vkGetDeviceQueue(logicalDevice, queueFamilyIndices.presentFamily.value(), 0, &presentQueue);
 
-    intialized = true;
+    initialized = true;
     return;
 }
 
 void VulkanDevice::Destroy()
 {
-    assert(intialized);
+    assert(initialized);
     vkDestroyDevice(logicalDevice, nullptr);
     
-    intialized = false;
+    initialized = false;
 }

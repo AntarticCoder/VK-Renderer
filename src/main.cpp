@@ -5,6 +5,10 @@
 #include <app-context/vk_swapchain.h>
 #include <app-context/vk_window.h>
 
+#include <graphics-pipeline/vk_shader_module.h>
+#include <graphics-pipeline/vk_renderpass.h>
+#include <graphics-pipeline/vk_graphics_pipeline.h>
+
 #include <renderer/vk_renderer.h>
 
 int main()
@@ -17,12 +21,27 @@ int main()
     VulkanSwapchain swapchain(&context, &window, &device);
     VulkanRenderer renderer(&window, &device, &swapchain);
 
+    VulkanShaderModule vertex(&device);
+    VulkanShaderModule fragment(&device);
+    VulkanRenderPass renderPass(&device, &swapchain);
+    VulkanGraphicsPipeline graphicsPipeline(&device, &renderPass);
+
     window.CreateWindow();
     context.CreateInstance();
     window.CreateSurface(&context);
     device.SelectPhysicalDevice();
     device.CreateDevice();
     swapchain.CreateSwapchain();
+
+    vertex.CreateShaderModule(Vertex, "/Users/nick/Programming/Graphics-Programming/VK-Renderer/resources/shaders/compiled/vert.spv");
+    fragment.CreateShaderModule(Fragment, "/Users/nick/Programming/Graphics-Programming/VK-Renderer/resources/shaders/compiled/frag.spv");
+
+    renderPass.CreateRenderpass();
+
+    graphicsPipeline.AddShaderStage(&vertex);
+    graphicsPipeline.AddShaderStage(&fragment);
+
+    graphicsPipeline.CreatePipeline();
 
     renderer.CreateCommands();
     renderer.CreateDefaultRenderPass();
@@ -39,6 +58,13 @@ int main()
     renderer.DestroyRenderPass();
     renderer.DestroyFramebuffers();
     renderer.DestroySyncStructures();
+
+    graphicsPipeline.Destroy();
+
+    vertex.Destroy();
+    fragment.Destroy();
+
+    renderPass.Destroy();
 
     swapchain.Destroy();
     device.Destroy();

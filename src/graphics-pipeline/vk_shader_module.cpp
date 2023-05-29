@@ -34,11 +34,13 @@ void VulkanShaderModule::CreateShaderModule(VulkanShaderStage stage, const std::
     shaderStageInfo.module = shaderModule;
     shaderStageInfo.pName = shaderEntryPoint.c_str();
 
-    initalized = true;
+    initialized = true;
 }
 
 void VulkanShaderModule::Destroy()
 {
-    assert(initalized);
+    assert(initialized);
     vkDestroyShaderModule(device->GetLogicalDevice(), shaderModule, nullptr);
+
+    initialized = false;
 }

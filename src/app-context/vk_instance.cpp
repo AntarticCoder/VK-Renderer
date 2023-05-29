@@ -53,12 +53,14 @@ void VulkanInstance::CreateInstance()
     VkResult result = vkCreateInstance(&instanceCreateInfo, nullptr, &instance);
     VK_CHECK(result);
 
-    intialized = true;
+    initialized = true;
     return;
 }
 
 void VulkanInstance::Destroy()
 {
-    assert(intialized);
+    assert(initialized);
     vkDestroyInstance(instance, nullptr);
+
+    initialized = false;
 }
