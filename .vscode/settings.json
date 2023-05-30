@@ -72,6 +72,10 @@
         "set": "cpp",
         "__verbose_abort": "cpp",
         "bit": "cpp",
-        "filesystem": "cpp"
+        "filesystem": "cpp",
+        "charconv": "cpp",
+        "deque": "cpp",
+        "fstream": "cpp",
+        "stack": "cpp"
     }
 }

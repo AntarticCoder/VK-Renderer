@@ -31,4 +31,6 @@ public:
 
     void CreatePipeline();
     void Destroy();
+
+    VkPipeline GetPipeline() { return pipeline; }
 };

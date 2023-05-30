@@ -53,4 +53,5 @@ public:
     VkDevice GetLogicalDevice() { return logicalDevice; }
 
     VkQueue GetGraphicsQueue() { return graphicsQueue; }
+    VulkanQueueFamilyIndices GetQueueFamilyIndices() { return queueFamilyIndices; }
 };

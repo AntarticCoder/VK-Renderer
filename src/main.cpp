@@ -8,7 +8,7 @@
 #include <graphics-pipeline/vk_shader_module.h>
 #include <graphics-pipeline/vk_renderpass.h>
 #include <graphics-pipeline/vk_graphics_pipeline.h>
-#include <graphics-pipeline/vk_framebuffer.h>
+
 
 #include <renderer/vk_renderer.h>
 
@@ -35,10 +35,10 @@ int main()
     device.CreateDevice();
     swapchain.CreateSwapchain();
 
+    renderPass.CreateRenderpass();
+
     vertex.CreateShaderModule(Vertex, "/Users/nick/Programming/Graphics-Programming/VK-Renderer/resources/shaders/compiled/vert.spv");
     fragment.CreateShaderModule(Fragment, "/Users/nick/Programming/Graphics-Programming/VK-Renderer/resources/shaders/compiled/frag.spv");
-
-    renderPass.CreateRenderpass();
 
     graphicsPipeline.AddShaderStage(&vertex);
     graphicsPipeline.AddShaderStage(&fragment);
@@ -47,21 +47,14 @@ int main()
 
     framebuffers.CreateFramebuffers();
 
-    renderer.CreateCommands();
-    renderer.CreateDefaultRenderPass();
-    renderer.CreateFramebuffers();
-    renderer.IntializeSyncStructures();
+    renderer.Init();
 
     while(!glfwWindowShouldClose(window.GetWindow()))
     {
-        renderer.Draw();
+        renderer.Draw(&graphicsPipeline, &renderPass, &framebuffers);
         glfwPollEvents();
     }
-
-    renderer.DestroyCommands();
-    renderer.DestroyRenderPass();
-    renderer.DestroyFramebuffers();
-    renderer.DestroySyncStructures();
+    renderer.Destroy();
 
     framebuffers.Destroy();
 

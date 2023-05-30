@@ -36,10 +36,12 @@ add_executable(VK-Renderer
     ${CMAKE_SOURCE_DIR}/src/app-context/vk_swapchain.cpp
     ${CMAKE_SOURCE_DIR}/src/app-context/vk_window.cpp
 
+    ${CMAKE_SOURCE_DIR}/src/commands/vk_command_pool.cpp
+    ${CMAKE_SOURCE_DIR}/src/commands/vk_command_buffer.cpp
+
     ${CMAKE_SOURCE_DIR}/src/graphics-pipeline/vk_shader_module.cpp
     ${CMAKE_SOURCE_DIR}/src/graphics-pipeline/vk_renderpass.cpp
     ${CMAKE_SOURCE_DIR}/src/graphics-pipeline/vk_graphics_pipeline.cpp
-    ${CMAKE_SOURCE_DIR}/src/graphics-pipeline/vk_framebuffer.cpp
 
     ${CMAKE_SOURCE_DIR}/src/renderer/vk_renderer.cpp
 )

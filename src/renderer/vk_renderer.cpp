@@ -1,231 +1,115 @@
 #include <utils/vk_utils.h>
 #include <renderer/vk_renderer.h>
 
-void VulkanRenderer::CreateCommands()
+void VulkanRenderer::CreateSynchronizationStructures()
 {
-    // TODO: Abstract command pool creation
-    VkCommandPoolCreateInfo commandPoolInfo = {};
-	commandPoolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-	commandPoolInfo.pNext = nullptr;
+	VkSemaphoreCreateInfo semaphoreInfo{};
+    semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
-	commandPoolInfo.queueFamilyIndex = device->FindQueueFamilies(device->GetPhysicalDevice()).graphicsFamily.value();
-	commandPoolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+	VkFenceCreateInfo fenceInfo{};
+	fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+	fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-    VkResult commandPoolResult = vkCreateCommandPool(device->GetLogicalDevice(), &commandPoolInfo, nullptr, &commandPool);
-    VK_CHECK(commandPoolResult);
+	vkCreateSemaphore(device->GetLogicalDevice(), &semaphoreInfo, nullptr, &imageAvailableSemaphore);
+    vkCreateSemaphore(device->GetLogicalDevice(), &semaphoreInfo, nullptr, &renderFinishedSemaphore);
+    vkCreateFence(device->GetLogicalDevice(), &fenceInfo, nullptr, &inFlightFence);
 
-    // TODO: Abstract command buffer creation
-    VkCommandBufferAllocateInfo commandAllocInfo = {};
-	commandAllocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-	commandAllocInfo.pNext = nullptr;
-
-	commandAllocInfo.commandPool = commandPool;
-	commandAllocInfo.commandBufferCount = 1;
-	commandAllocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-
-    VkResult primaryCommandBufferResult = vkAllocateCommandBuffers(device->GetLogicalDevice(), &commandAllocInfo, &primaryCommandBuffer);
-    VK_CHECK(primaryCommandBufferResult);
-
-    commandsInitialized = true;
+	syncStructuresCreated = true;
 }
 
-void VulkanRenderer::CreateDefaultRenderPass()
+void VulkanRenderer::DestroySynchronizationStructures()
 {
-    VkAttachmentDescription colorAttachment = {};
-	colorAttachment.format = swapchain->GetFormat();
-	colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-	colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-	colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+	assert(syncStructuresCreated);
 
-	colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-	colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	vkDestroySemaphore(device->GetLogicalDevice(), imageAvailableSemaphore, nullptr);
+    vkDestroySemaphore(device->GetLogicalDevice(), renderFinishedSemaphore, nullptr);
+    vkDestroyFence(device->GetLogicalDevice(), inFlightFence, nullptr);
 
-	colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-
-    VkAttachmentReference colorAttachmentRef = {};
-	colorAttachmentRef.attachment = 0;
-	colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-	VkSubpassDescription subpass = {};
-	subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-	subpass.colorAttachmentCount = 1;
-	subpass.pColorAttachments = &colorAttachmentRef;
-
-    VkRenderPassCreateInfo renderPassInfo = {};
-	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-	renderPassInfo.attachmentCount = 1;
-	renderPassInfo.pAttachments = &colorAttachment;
-	renderPassInfo.subpassCount = 1;
-	renderPassInfo.pSubpasses = &subpass;
-
-    VkResult result = vkCreateRenderPass(device->GetLogicalDevice(), &renderPassInfo, nullptr, &renderpass);
-	VK_CHECK(result);
-
-    renderpassInitialized = true;
+	syncStructuresCreated = false;
 }
 
-void VulkanRenderer::CreateFramebuffers()
+void VulkanRenderer::Init()
 {
-  	VkFramebufferCreateInfo framebufferInfo = {};
-	framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-	framebufferInfo.pNext = nullptr;
+	CreateSynchronizationStructures();
 
-	framebufferInfo.renderPass = renderpass;
-	framebufferInfo.attachmentCount = 1;
-	framebufferInfo.width = swapchain->GetExtent().width;
-	framebufferInfo.height = swapchain->GetExtent().height;
-	framebufferInfo.layers = 1;
+	commandPool = new VulkanCommandPool(device);
+	commandBuffer = new VulkanCommandBuffer(device, commandPool);
 
-	const uint32_t swapchainLength = swapchain->GetSwapchainImageViewLength();
-	framebuffers = std::vector<VkFramebuffer>(swapchainLength);
-
-	for(int i = 0; i < swapchainLength; i++)
-    {
-		VkImageView imageView[] = { swapchain->GetImageViews()[i] };
-		framebufferInfo.pAttachments = imageView;
-        VkResult result = vkCreateFramebuffer(device->GetLogicalDevice(), &framebufferInfo, nullptr, &framebuffers[i]);
-		VK_CHECK(result);
-	}
-
-    framebufferInitialized = true;
+	commandPool->CreateCommandPool();
+	commandBuffer->AllocateCommandBuffer();
 }
 
-void VulkanRenderer::IntializeSyncStructures()
+void VulkanRenderer::Draw(VulkanGraphicsPipeline* pipeline, VulkanRenderPass* renderpass, VulkanFramebuffers* framebuffer)
 {
-    VkFenceCreateInfo fenceCreateInfo = {};
-	fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-	fenceCreateInfo.pNext = nullptr;
-	fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+	vkWaitForFences(device->GetLogicalDevice(), 1, &inFlightFence, VK_TRUE, UINT64_MAX);
+	vkResetFences(device->GetLogicalDevice(), 1, &inFlightFence);
 
-	VkResult fenceResult = vkCreateFence(device->GetLogicalDevice(), &fenceCreateInfo, nullptr, &renderFence);
-	VK_CHECK(fenceResult);
+	uint32_t imageIndex;
+    vkAcquireNextImageKHR(device->GetLogicalDevice(), swapchain->GetSwapchain(), UINT64_MAX, imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
 
-	VkSemaphoreCreateInfo semaphoreCreateInfo = {};
-	semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-	semaphoreCreateInfo.pNext = nullptr;
-	semaphoreCreateInfo.flags = 0;
+	vkResetCommandBuffer(commandBuffer->GetCommandBuffer(), 0);
 
-	VkResult presentSemaphoreResult = vkCreateSemaphore(device->GetLogicalDevice(), &semaphoreCreateInfo, nullptr, &presentSemaphore);
-	VkResult renderSemaphoreResult = vkCreateSemaphore(device->GetLogicalDevice(), &semaphoreCreateInfo, nullptr, &renderSemaphore);
+	commandBuffer->Begin();
+	renderpass->Begin(commandBuffer, swapchain, framebuffer->GetFramebuffers(), imageIndex);
 
-	VK_CHECK(presentSemaphoreResult);
-	VK_CHECK(renderSemaphoreResult);
-}
+	vkCmdBindPipeline(commandBuffer->GetCommandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->GetPipeline());
 
-void VulkanRenderer::Draw()
-{
-	VkResult result = VK_SUCCESS;
+	VkViewport viewport{};
+	viewport.x = 0.0f;
+	viewport.y = 0.0f;
+	viewport.width = (float) swapchain->GetExtent().width;
+	viewport.height = (float) swapchain->GetExtent().height;
+	viewport.minDepth = 0.0f;
+	viewport.maxDepth = 1.0f;
+	vkCmdSetViewport(commandBuffer->GetCommandBuffer(), 0, 1, &viewport);
 
-	result = vkWaitForFences(device->GetLogicalDevice(), 1, &renderFence, true, 1000000000);
-	VK_CHECK(result);
+	VkRect2D scissor{};
+	scissor.offset = {0, 0};
+	scissor.extent = swapchain->GetExtent();
+	vkCmdSetScissor(commandBuffer->GetCommandBuffer(), 0, 1, &scissor);            
 
-	result = vkResetFences(device->GetLogicalDevice(), 1, &renderFence);
-	VK_CHECK(result);
+	vkCmdDraw(commandBuffer->GetCommandBuffer(), 3, 1, 0, 0);
 
-	uint32_t imageIndex = 0;
-	result = vkAcquireNextImageKHR(device->GetLogicalDevice(), swapchain->GetSwapchain(), 1000000000, presentSemaphore, nullptr, &imageIndex);
-	VK_CHECK(result);
+	renderpass->End(commandBuffer);
+	commandBuffer->End();
 
-	result = vkResetCommandBuffer(primaryCommandBuffer, 0);
-	VK_CHECK(result);
+	VkSubmitInfo submitInfo{};
+	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-	VkCommandBuffer cmd = primaryCommandBuffer;
+	VkSemaphore waitSemaphores[] = {imageAvailableSemaphore};
+	VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+	submitInfo.waitSemaphoreCount = 1;
+	submitInfo.pWaitSemaphores = waitSemaphores;
+	submitInfo.pWaitDstStageMask = waitStages;
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers = commandBuffer->GetCommandBufferAddress();
 
-	VkCommandBufferBeginInfo cmdBeginInfo = {};
-	cmdBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-	cmdBeginInfo.pNext = nullptr;
+	VkSemaphore signalSemaphores[] = {renderFinishedSemaphore};
+	submitInfo.signalSemaphoreCount = 1;	
+	submitInfo.pSignalSemaphores = signalSemaphores;
 
-	cmdBeginInfo.pInheritanceInfo = nullptr;
-	cmdBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+	VkResult result = vkQueueSubmit(device->GetGraphicsQueue(), 1, &submitInfo, inFlightFence);
 
-	result = vkBeginCommandBuffer(cmd, &cmdBeginInfo);
-	VK_CHECK(result);
-
-	VkClearValue clearValue;
-	clearValue.color = { { 172.0f/255.0f, 22.0f/255.0f, 44.0f/255.0f, 1.0f } };
-
-	VkRenderPassBeginInfo renderpassInfo = {};
-	renderpassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-	renderpassInfo.pNext = nullptr;
-
-	renderpassInfo.renderPass = renderpass;
-	renderpassInfo.renderArea.offset.x = 0;
-	renderpassInfo.renderArea.offset.y = 0;
-	renderpassInfo.renderArea.extent = swapchain->GetExtent();
-	renderpassInfo.framebuffer = framebuffers[imageIndex];
-
-	renderpassInfo.clearValueCount = 1;
-	renderpassInfo.pClearValues = &clearValue;
-
-	vkCmdBeginRenderPass(cmd, &renderpassInfo, VK_SUBPASS_CONTENTS_INLINE);
-	vkCmdEndRenderPass(cmd);
-
-	result = vkEndCommandBuffer(cmd);
-	VK_CHECK(result);
-
-	VkSubmitInfo submit = {};
-	submit.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-	submit.pNext = nullptr;
-
-	VkPipelineStageFlags waitStage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-
-	submit.pWaitDstStageMask = &waitStage;
-
-	submit.waitSemaphoreCount = 1;
-	submit.pWaitSemaphores = &presentSemaphore;
-
-	submit.signalSemaphoreCount = 1;
-	submit.pSignalSemaphores = &renderSemaphore;
-
-	submit.commandBufferCount = 1;
-	submit.pCommandBuffers = &cmd;
-
-	result = vkQueueSubmit(device->GetGraphicsQueue(), 1, &submit, renderFence);
-	VK_CHECK(result);
-
-	VkPresentInfoKHR presentInfo = {};
+	VkPresentInfoKHR presentInfo{};
 	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-	presentInfo.pNext = nullptr;
 
-	VkSwapchainKHR swapchainKHR = swapchain->GetSwapchain();
-	presentInfo.pSwapchains = &swapchainKHR;
-	presentInfo.swapchainCount = 1;
-	presentInfo.pWaitSemaphores = &renderSemaphore;
 	presentInfo.waitSemaphoreCount = 1;
+	presentInfo.pWaitSemaphores = signalSemaphores;
+
+	VkSwapchainKHR swapChains[] = {swapchain->GetSwapchain()};
+	presentInfo.swapchainCount = 1;
+	presentInfo.pSwapchains = swapChains;
 	presentInfo.pImageIndices = &imageIndex;
 
-	result = vkQueuePresentKHR(device->GetGraphicsQueue(), &presentInfo);
-    VK_CHECK(result);
+	presentInfo.pResults = nullptr;
+
+	vkQueuePresentKHR(device->GetGraphicsQueue(), &presentInfo);
 }
 
-void VulkanRenderer::DestroyCommands()
+void VulkanRenderer::Destroy()
 {
-    assert(commandsInitialized);
-    vkDestroyCommandPool(device->GetLogicalDevice(), commandPool, nullptr);
-}
+	vkDeviceWaitIdle(device->GetLogicalDevice());
 
-void VulkanRenderer::DestroyFramebuffers()
-{
-    assert(framebufferInitialized);
-
-    for(int i = 0; i < framebuffers.size(); i++)
-    {
-        vkDestroyFramebuffer(device->GetLogicalDevice(), framebuffers[i], nullptr);
-    }
-}
-
-void VulkanRenderer::DestroyRenderPass()
-{
-    assert(renderpassInitialized);
-    vkDestroyRenderPass(device->GetLogicalDevice(), renderpass, nullptr);
-}
-
-void VulkanRenderer::DestroySyncStructures()
-{
-	vkWaitForFences(device->GetLogicalDevice(), 1, &renderFence, true, 1000000000);
-
-	vkDestroySemaphore(device->GetLogicalDevice(), presentSemaphore, nullptr);
-	vkDestroySemaphore(device->GetLogicalDevice(), renderSemaphore, nullptr);
-	vkDestroyFence(device->GetLogicalDevice(), renderFence, nullptr);
+	DestroySynchronizationStructures();
+	commandPool->Destroy();
 }

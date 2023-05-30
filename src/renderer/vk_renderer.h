@@ -7,39 +7,37 @@
 #include <app-context/vk_device.h>
 #include <app-context/vk_swapchain.h>
 
+#include <commands/vk_command_pool.h>
+#include <commands/vk_command_buffer.h>
+
+#include <graphics-pipeline/vk_graphics_pipeline.h>
+#include <graphics-pipeline/vk_renderpass.h>
+
+
 class VulkanRenderer
 {
 private:
     VulkanWindow* window;
     VulkanDevice* device;
     VulkanSwapchain* swapchain;
+    VulkanGraphicsPipeline* pipeline;
 
-    VkCommandPool commandPool;
-    VkCommandBuffer primaryCommandBuffer;
+    VulkanCommandPool* commandPool;
+    VulkanCommandBuffer* commandBuffer;
 
-    VkRenderPass renderpass;
-	std::vector<VkFramebuffer> framebuffers;
+    VkSemaphore imageAvailableSemaphore;
+    VkSemaphore renderFinishedSemaphore;
+    VkFence inFlightFence;
 
-    VkSemaphore presentSemaphore;
-    VkSemaphore renderSemaphore;
-	VkFence renderFence;
+    void CreateSynchronizationStructures();
+    void DestroySynchronizationStructures();
 
-    bool commandsInitialized = false;
-    bool renderpassInitialized = false;
-    bool framebufferInitialized = false;
+    bool syncStructuresCreated = false;
 public:
     VulkanRenderer(VulkanWindow* window, VulkanDevice* device, VulkanSwapchain* swapchain) : device(device), swapchain(swapchain), window(window) { }
     ~VulkanRenderer() {}
 
-    void CreateCommands();
-    void CreateDefaultRenderPass();
-    void CreateFramebuffers();
-    void IntializeSyncStructures();
-
-    void Draw();
-
-    void DestroyCommands();
-    void DestroyRenderPass();
-    void DestroyFramebuffers();
-    void DestroySyncStructures();
+    void Init();
+    void Draw(VulkanGraphicsPipeline* pipeline, VulkanRenderPass* renderpass, VulkanFramebuffers* framebuffer);
+    void Destroy();
 };
