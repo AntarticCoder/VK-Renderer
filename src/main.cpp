@@ -8,6 +8,7 @@
 #include <graphics-pipeline/vk_shader_module.h>
 #include <graphics-pipeline/vk_renderpass.h>
 #include <graphics-pipeline/vk_graphics_pipeline.h>
+#include <graphics-pipeline/vk_framebuffer.h>
 
 #include <renderer/vk_renderer.h>
 
@@ -25,6 +26,7 @@ int main()
     VulkanShaderModule fragment(&device);
     VulkanRenderPass renderPass(&device, &swapchain);
     VulkanGraphicsPipeline graphicsPipeline(&device, &renderPass);
+    VulkanFramebuffers framebuffers(&device, &swapchain, &renderPass);
 
     window.CreateWindow();
     context.CreateInstance();
@@ -43,6 +45,8 @@ int main()
 
     graphicsPipeline.CreatePipeline();
 
+    framebuffers.CreateFramebuffers();
+
     renderer.CreateCommands();
     renderer.CreateDefaultRenderPass();
     renderer.CreateFramebuffers();
@@ -58,6 +62,8 @@ int main()
     renderer.DestroyRenderPass();
     renderer.DestroyFramebuffers();
     renderer.DestroySyncStructures();
+
+    framebuffers.Destroy();
 
     graphicsPipeline.Destroy();
 
