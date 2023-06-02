@@ -3,12 +3,16 @@
 #include <utils/vk_utils.h>
 #include <app-context/vk_window.h>
 
+bool VulkanWindow::framebufferResized = false;
+
 void VulkanWindow::CreateWindow()
 {
     glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
     window = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
+    glfwSetWindowUserPointer(window, this);
+    glfwSetFramebufferSizeCallback(window, FramebufferResizeCallback);
 
     if(window == NULL) { std::cout << "Failed to create GLFW Window: " << glfwGetError(NULL) << std::endl; }
 }

@@ -9,17 +9,16 @@
 #include <graphics-pipeline/vk_renderpass.h>
 #include <graphics-pipeline/vk_graphics_pipeline.h>
 
-
 #include <renderer/vk_renderer.h>
 
 int main()
 {
-    std::cout << "Hello World!" << std::endl;
+    std::cout << "VK-Renderer Starting Up!" << std::endl;
 
     VulkanWindow window("VK Renderer", 800, 600);
     VulkanInstance context;
     VulkanDevice device(&context, &window);
-    VulkanSwapchain swapchain(&context, &window, &device);
+    VulkanSwapchain swapchain(&window, &device);
     VulkanRenderer renderer(&window, &device, &swapchain);
 
     VulkanShaderModule vertex(&device);
@@ -70,5 +69,6 @@ int main()
     window.Destroy();
     context.Destroy();
 
+    std::cout << "VK Renderer Shutting Down!" << std::endl;
     return 0;
 }

@@ -3,12 +3,14 @@
 
 void VulkanGraphicsPipeline::CreatePipeline()
 {
+    VkDevice vkDevice = device->GetLogicalDevice();
+
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     pipelineLayoutInfo.setLayoutCount = 0;
     pipelineLayoutInfo.pushConstantRangeCount = 0;
 
-    VkResult result = vkCreatePipelineLayout(device->GetLogicalDevice(), &pipelineLayoutInfo, nullptr, &layout);
+    VkResult result = vkCreatePipelineLayout(vkDevice, &pipelineLayoutInfo, nullptr, &layout);
     VK_CHECK(result);
 
     VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
@@ -87,7 +89,7 @@ void VulkanGraphicsPipeline::CreatePipeline()
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
     pipelineInfo.basePipelineIndex = -1; 
 
-    result = vkCreateGraphicsPipelines(device->GetLogicalDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline);
+    result = vkCreateGraphicsPipelines(vkDevice, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline);
     VK_CHECK(result);
 
     initialized = true;
@@ -96,8 +98,10 @@ void VulkanGraphicsPipeline::CreatePipeline()
 void VulkanGraphicsPipeline::Destroy()
 {
     assert(initialized);
-    vkDestroyPipeline(device->GetLogicalDevice(), pipeline, nullptr);
-    vkDestroyPipelineLayout(device->GetLogicalDevice(), layout, nullptr);
+    VkDevice vkDevice = device->GetLogicalDevice();
+
+    vkDestroyPipeline(vkDevice, pipeline, nullptr);
+    vkDestroyPipelineLayout(vkDevice, layout, nullptr);
 
     initialized = false;
 }

@@ -2,7 +2,6 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
-#include <app-context/vk_instance.h>
 #include <app-context/vk_window.h>
 #include <app-context/vk_device.h>
 
@@ -18,7 +17,6 @@ struct VulkanSwapchainSupportDetails
 class VulkanSwapchain
 {
 private:
-    VulkanInstance* appContext = nullptr;
     VulkanWindow* window = nullptr;
     VulkanDevice* device = nullptr;
 
@@ -40,13 +38,14 @@ private:
 
     void CreateImageViews();
 public:
-    VulkanSwapchain(VulkanInstance* context, VulkanWindow* window, VulkanDevice* device) : appContext(context), window(window), device(device) {}
+    VulkanSwapchain(VulkanWindow* window, VulkanDevice* device) : window(window), device(device) {}
     ~VulkanSwapchain()
     { 
         if(initialized) { Destroy(); }
     }
 
     void CreateSwapchain();
+    void RecreateSwapchain();
     void Destroy();
 
     VkFormat GetFormat() { return swapchainImageFormat; }

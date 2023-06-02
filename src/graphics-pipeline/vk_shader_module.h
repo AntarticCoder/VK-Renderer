@@ -12,8 +12,6 @@ enum VulkanShaderStage
     Fragment
 };
 
-// initialized
-
 class VulkanShaderModule
 {
 private:

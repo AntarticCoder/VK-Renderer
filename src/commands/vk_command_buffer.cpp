@@ -40,3 +40,7 @@ void VulkanCommandBuffer::End()
     recording = false;
 }
 
+void VulkanCommandBuffer::Reset()
+{
+    vkResetCommandBuffer(commandBuffer, 0);
+}

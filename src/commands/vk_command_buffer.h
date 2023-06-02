@@ -24,7 +24,7 @@ public:
 
     void Begin();
     void End();
+    void Reset();
 
     VkCommandBuffer GetCommandBuffer() { return commandBuffer; }
-    VkCommandBuffer* GetCommandBufferAddress() { return &commandBuffer; }
 };

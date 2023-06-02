@@ -106,10 +106,12 @@ void VulkanSwapchain::CreateImageViews()
 void VulkanSwapchain::CreateSwapchain()
 {
     assert(!initialized);
+    
     VulkanSwapchainSupportDetails swapChainSupport = GetSwapchainSupportDetails();
     VulkanQueueFamilyIndices indices = device->FindQueueFamilies(device->GetPhysicalDevice());
-    VkDevice logicalDevice = device->GetLogicalDevice();
-    VkSurfaceKHR surface = window->GetSurface();
+
+    VkDevice vkDevice = device->GetLogicalDevice();
+    VkSurfaceKHR vkSurface = window->GetSurface();
 
     VkSurfaceFormatKHR surfaceFormat = ChooseSwapchainSurfaceFormat(swapChainSupport.formats);
     VkPresentModeKHR presentMode = ChooseSwapchainPresentMode(swapChainSupport.presentModes);
@@ -123,7 +125,7 @@ void VulkanSwapchain::CreateSwapchain()
 
     VkSwapchainCreateInfoKHR createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-    createInfo.surface = surface;
+    createInfo.surface = vkSurface;
     createInfo.minImageCount = imageCount;
     createInfo.imageFormat = surfaceFormat.format;
     createInfo.imageColorSpace = surfaceFormat.colorSpace;
@@ -154,12 +156,12 @@ void VulkanSwapchain::CreateSwapchain()
     swapchainImageFormat = surfaceFormat.format;
     swapchainExtent = extent;
 
-    VkResult result = vkCreateSwapchainKHR(logicalDevice, &createInfo, nullptr, &swapchain);
+    VkResult result = vkCreateSwapchainKHR(vkDevice, &createInfo, nullptr, &swapchain);
     VK_CHECK(result);
 
-    vkGetSwapchainImagesKHR(logicalDevice, swapchain, &imageCount, nullptr);
+    vkGetSwapchainImagesKHR(vkDevice, swapchain, &imageCount, nullptr);
     swapchainImages.resize(imageCount);
-    vkGetSwapchainImagesKHR(logicalDevice, swapchain, &imageCount, swapchainImages.data());
+    vkGetSwapchainImagesKHR(vkDevice, swapchain, &imageCount, swapchainImages.data());
 
     CreateImageViews();
 
@@ -167,15 +169,24 @@ void VulkanSwapchain::CreateSwapchain()
     return;
 }
 
+void VulkanSwapchain::RecreateSwapchain()
+{
+    vkDeviceWaitIdle(device->GetLogicalDevice());
+    
+    Destroy();
+    CreateSwapchain();
+}
+
 void VulkanSwapchain::Destroy()
 {
     assert(initialized);
+    VkDevice vkDevice = device->GetLogicalDevice();
 
     for(auto imageView : swapchainImageViews)
     {
-        vkDestroyImageView(device->GetLogicalDevice(), imageView, nullptr);
+        vkDestroyImageView(vkDevice, imageView, nullptr);
     }
-    vkDestroySwapchainKHR(device->GetLogicalDevice(), swapchain, nullptr);
+    vkDestroySwapchainKHR(vkDevice, swapchain, nullptr);
     
     initialized = false;
 }

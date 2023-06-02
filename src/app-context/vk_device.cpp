@@ -45,6 +45,8 @@ VulkanQueueFamilyIndices VulkanDevice::FindQueueFamilies(VkPhysicalDevice device
         i++;
     }
 
+    if(indices.graphicsFamily == indices.presentFamily) { commonQueueFamily = true; }
+
     return indices;
 }
 
@@ -90,12 +92,14 @@ bool VulkanDevice::SwapchainSupported(VkPhysicalDevice device)
 
 void VulkanDevice::SelectPhysicalDevice()
 {
+    VkInstance vkInstance = appContext->GetInstance();
+
     uint32_t deviceCount;
-    vkEnumeratePhysicalDevices(appContext->GetInstance(), &deviceCount, nullptr);
+    vkEnumeratePhysicalDevices(vkInstance, &deviceCount, nullptr);
     assert(deviceCount > 0);
 
     std::vector<VkPhysicalDevice> physicalDevices(deviceCount);
-    vkEnumeratePhysicalDevices(appContext->GetInstance(), &deviceCount, &physicalDevices[0]);
+    vkEnumeratePhysicalDevices(vkInstance, &deviceCount, &physicalDevices[0]);
 
     int bestRatedDeviceScore = 0;
     VkPhysicalDevice bestRatedDevice = VK_NULL_HANDLE;
@@ -117,9 +121,18 @@ void VulkanDevice::SelectPhysicalDevice()
 }
 
 void VulkanDevice::CreateDevice()
-{
+{   
+    assert(!initialized);
+
+    float commonQueuePriority = 1.0f;
     float graphicsQueuePriority = 1.0f;
     float presentQueuePriority = 1.0f;
+
+    VkDeviceQueueCreateInfo commonQueueCreateInfo{};
+    commonQueueCreateInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
+    commonQueueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+    commonQueueCreateInfo.queueCount = 1;
+    commonQueueCreateInfo.pQueuePriorities = &commonQueuePriority;
 
     VkDeviceQueueCreateInfo graphicsQueueCreateInfo{};
     graphicsQueueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
@@ -133,7 +146,13 @@ void VulkanDevice::CreateDevice()
     presentQueueCreateInfo.queueCount = 1;
     presentQueueCreateInfo.pQueuePriorities = &presentQueuePriority;
 
-    std::vector<VkDeviceQueueCreateInfo> queueCreateInfos = { graphicsQueueCreateInfo, presentQueueCreateInfo};
+    std::vector<VkDeviceQueueCreateInfo> queueCreateInfos = { graphicsQueueCreateInfo, presentQueueCreateInfo, commonQueueCreateInfo};
+
+    if(commonQueueFamily == true)
+    {
+        queueCreateInfos.clear();
+        queueCreateInfos.push_back(commonQueueCreateInfo);
+    }
 
     #ifdef __APPLE__ 
         requiredDeviceExtensions.push_back("VK_KHR_portability_subset");
@@ -154,8 +173,16 @@ void VulkanDevice::CreateDevice()
     VkResult result = vkCreateDevice(physicalDevice, &createInfo, nullptr, &logicalDevice);
     VK_CHECK(result);
 
-    vkGetDeviceQueue(logicalDevice, queueFamilyIndices.graphicsFamily.value(), 0, &graphicsQueue);
-    vkGetDeviceQueue(logicalDevice, queueFamilyIndices.presentFamily.value(), 0, &presentQueue);
+    if(commonQueueFamily == true)
+    {
+        vkGetDeviceQueue(logicalDevice, queueFamilyIndices.graphicsFamily.value(), 0, &commonQueue);
+    } 
+    else 
+    {
+        vkGetDeviceQueue(logicalDevice, queueFamilyIndices.graphicsFamily.value(), 0, &commonQueue);
+        vkGetDeviceQueue(logicalDevice, queueFamilyIndices.graphicsFamily.value(), 0, &graphicsQueue);
+        vkGetDeviceQueue(logicalDevice, queueFamilyIndices.presentFamily.value(), 0, &presentQueue);
+    }
 
     initialized = true;
     return;
@@ -167,4 +194,28 @@ void VulkanDevice::Destroy()
     vkDestroyDevice(logicalDevice, nullptr);
     
     initialized = false;
+}
+
+VkQueue VulkanDevice::GetCommonQueue()
+{
+    assert(initialized);
+    return commonQueue;
+}
+
+VkQueue VulkanDevice::GetGraphicsQueue() 
+{
+    assert(initialized);
+    if(graphicsQueue == VK_NULL_HANDLE && commonQueue == VK_NULL_HANDLE) { return VK_NULL_HANDLE; }
+
+    if(commonQueueFamily == true) {  return commonQueue; }
+    return graphicsQueue;
+}
+
+VkQueue VulkanDevice::GetPresentQueue()
+{
+    assert(initialized);
+    if(presentQueue == VK_NULL_HANDLE && commonQueue == VK_NULL_HANDLE) { return VK_NULL_HANDLE; }
+
+    if(commonQueueFamily == true) {  return commonQueue; }
+    return presentQueue;
 }

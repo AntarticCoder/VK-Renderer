@@ -28,6 +28,8 @@ std::vector<const char*> VulkanInstance::GetInstanceExtensions()
 
 void VulkanInstance::CreateInstance()
 {
+    assert(!initialized);
+
     VkApplicationInfo applicationInfo = {};
     applicationInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
     applicationInfo.pApplicationName = "VK Renderer";

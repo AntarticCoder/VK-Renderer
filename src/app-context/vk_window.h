@@ -18,6 +18,7 @@ private:
     unsigned int width;
     unsigned int height;
 
+    static bool framebufferResized;
     bool initialized = false;
 public:
     VulkanWindow(std::string windowTitle, int windowWidth, int windowHeight) : title(windowTitle), width(windowWidth), height(windowHeight) {}
@@ -32,4 +33,21 @@ public:
     
     GLFWwindow* GetWindow() { return window; }
     VkSurfaceKHR GetSurface() { return surface; }
+
+    bool GetFramebufferResize()
+    {
+        if(framebufferResized == true)
+        { 
+            framebufferResized = false;
+            return true;
+        }
+
+        framebufferResized = false;
+        return false;
+    }
+    
+    static void FramebufferResizeCallback(GLFWwindow* window, int width, int height)
+    {
+        framebufferResized = true;
+    }
 };

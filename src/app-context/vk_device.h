@@ -27,9 +27,11 @@ private:
 
     VulkanQueueFamilyIndices queueFamilyIndices;
 
-    VkQueue graphicsQueue;
-    VkQueue presentQueue;
+    VkQueue commonQueue = VK_NULL_HANDLE;
+    VkQueue graphicsQueue = VK_NULL_HANDLE;
+    VkQueue presentQueue = VK_NULL_HANDLE;
 
+    bool commonQueueFamily = false;
     bool initialized = false;
 
     int RatePhysicalDevice(VkPhysicalDevice device);
@@ -52,6 +54,9 @@ public:
     VkPhysicalDevice GetPhysicalDevice() { return physicalDevice; }
     VkDevice GetLogicalDevice() { return logicalDevice; }
 
-    VkQueue GetGraphicsQueue() { return graphicsQueue; }
+    VkQueue GetCommonQueue();
+    VkQueue GetGraphicsQueue();
+    VkQueue GetPresentQueue();
+
     VulkanQueueFamilyIndices GetQueueFamilyIndices() { return queueFamilyIndices; }
 };

@@ -27,7 +27,11 @@ public:
         if(initialized) { Destroy(); }
     }
 
-    void AddShaderStage(VulkanShaderModule* module) { shaderStages.push_back(module->GetShaderStageCreateInfo()); }
+    void AddShaderStage(VulkanShaderModule* module)
+    { 
+        assert(!initialized);
+        shaderStages.push_back(module->GetShaderStageCreateInfo());
+    }
 
     void CreatePipeline();
     void Destroy();

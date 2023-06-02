@@ -23,11 +23,14 @@ private:
     VulkanGraphicsPipeline* pipeline;
 
     VulkanCommandPool* commandPool;
-    VulkanCommandBuffer* commandBuffer;
+    std::vector<VulkanCommandBuffer*> commandBuffers;
 
-    VkSemaphore imageAvailableSemaphore;
-    VkSemaphore renderFinishedSemaphore;
-    VkFence inFlightFence;
+    std::vector<VkSemaphore> imageAvailableSemaphores;
+    std::vector<VkSemaphore> renderFinishedSemaphores;
+    std::vector<VkFence> inFlightFences;
+
+    uint32_t currentFrame = 0;
+    const int MAX_FRAMES_IN_FLIGHT = 2;
 
     void CreateSynchronizationStructures();
     void DestroySynchronizationStructures();
