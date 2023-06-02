@@ -1,5 +1,6 @@
 #include <utils/vk_utils.h>
 #include <renderer/vk_renderer.h>
+#include <graphics-pipeline/vk_vertex.h>
 
 void VulkanRenderer::CreateSynchronizationStructures()
 {
@@ -55,6 +56,20 @@ void VulkanRenderer::Init()
 		commandBuffers[i] = new VulkanCommandBuffer(device, commandPool);
 		commandBuffers[i]->AllocateCommandBuffer();
 	}
+
+	const std::vector<class Vertex> vertices =
+	{
+		{{0.0f, -0.5f}, {0.0f, 0.0f, 0.0f}},
+		{{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
+		{{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
+	};
+
+	void* data;
+
+	data = (void*)&vertices[0];
+
+	buffer = new VulkanBuffer(device);
+	buffer->CreateBuffer(data, sizeof(vertices[0]) * vertices.size(), VERTEX_BUFFER);
 }
 
 void VulkanRenderer::Draw(VulkanGraphicsPipeline* pipeline, VulkanRenderPass* renderpass, VulkanFramebuffers* framebuffer)
@@ -79,8 +94,6 @@ void VulkanRenderer::Draw(VulkanGraphicsPipeline* pipeline, VulkanRenderPass* re
 	
 	if(VK_CHECK_SWAPCHAIN_OUT_OF_DATE(result) || window->GetFramebufferResize())
 	{
-		// swapchain->RecreateSwapchain();
-
 		vkDeviceWaitIdle(vkDevice);
 
 		swapchain->Destroy();
@@ -109,7 +122,11 @@ void VulkanRenderer::Draw(VulkanGraphicsPipeline* pipeline, VulkanRenderPass* re
 	VkRect2D scissor{};
 	scissor.offset = {0, 0};
 	scissor.extent = swapchain->GetExtent();
-	vkCmdSetScissor(vkCommandBuffer, 0, 1, &scissor);            
+	vkCmdSetScissor(vkCommandBuffer, 0, 1, &scissor);           
+
+	VkBuffer vertexBuffers[] = {buffer->GetBuffer()};
+	VkDeviceSize offsets[] = {0};
+	vkCmdBindVertexBuffers(vkCommandBuffer, 0, 1, vertexBuffers, offsets); 
 
 	vkCmdDraw(vkCommandBuffer, 3, 1, 0, 0);
 
@@ -151,8 +168,6 @@ void VulkanRenderer::Draw(VulkanGraphicsPipeline* pipeline, VulkanRenderPass* re
 
 	if(VK_CHECK_SWAPCHAIN_OUT_OF_DATE(result) || window->GetFramebufferResize())
 	{
-		// swapchain->RecreateSwapchain();
-
 		vkDeviceWaitIdle(vkDevice);
 
 		swapchain->Destroy();
@@ -170,4 +185,5 @@ void VulkanRenderer::Destroy()
 
 	DestroySynchronizationStructures();
 	commandPool->Destroy();
+	buffer->Destroy();
 }

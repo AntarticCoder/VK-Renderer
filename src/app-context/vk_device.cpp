@@ -115,8 +115,10 @@ void VulkanDevice::SelectPhysicalDevice()
     }
 
     assert(bestRatedDevice != VK_NULL_HANDLE);
+
     physicalDevice = bestRatedDevice;
     queueFamilyIndices = FindQueueFamilies(physicalDevice);
+
     return;
 }
 
@@ -186,6 +188,22 @@ void VulkanDevice::CreateDevice()
 
     initialized = true;
     return;
+}
+
+uint32_t VulkanDevice::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
+{
+    vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memoryProperties);
+
+    for (uint32_t i = 0; i < memoryProperties.memoryTypeCount; i++)
+    {
+        if (typeFilter & (1 << i)  && (memoryProperties.memoryTypes[i].propertyFlags & properties) == properties) 
+        { 
+            return i;
+        }
+    }
+
+    std::cout << "Could not find suitable memory type" << std::endl; 
+    abort();
 }
 
 void VulkanDevice::Destroy()

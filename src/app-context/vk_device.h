@@ -31,6 +31,8 @@ private:
     VkQueue graphicsQueue = VK_NULL_HANDLE;
     VkQueue presentQueue = VK_NULL_HANDLE;
 
+    VkPhysicalDeviceMemoryProperties memoryProperties;
+
     bool commonQueueFamily = false;
     bool initialized = false;
 
@@ -45,6 +47,7 @@ public:
     }
 
     VulkanQueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device);
+    uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
     void SelectPhysicalDevice();
     void CreateDevice();
@@ -58,5 +61,6 @@ public:
     VkQueue GetGraphicsQueue();
     VkQueue GetPresentQueue();
 
+    VkPhysicalDeviceMemoryProperties GetMemoryProperties() { return memoryProperties; }
     VulkanQueueFamilyIndices GetQueueFamilyIndices() { return queueFamilyIndices; }
 };

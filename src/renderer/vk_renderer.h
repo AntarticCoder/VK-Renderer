@@ -13,6 +13,7 @@
 #include <graphics-pipeline/vk_graphics_pipeline.h>
 #include <graphics-pipeline/vk_renderpass.h>
 
+#include <buffer/vk_buffer.h>
 
 class VulkanRenderer
 {
@@ -28,6 +29,8 @@ private:
     std::vector<VkSemaphore> imageAvailableSemaphores;
     std::vector<VkSemaphore> renderFinishedSemaphores;
     std::vector<VkFence> inFlightFences;
+
+    VulkanBuffer* buffer;
 
     uint32_t currentFrame = 0;
     const int MAX_FRAMES_IN_FLIGHT = 2;

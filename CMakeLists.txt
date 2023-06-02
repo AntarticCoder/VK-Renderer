@@ -36,6 +36,8 @@ add_executable(VK-Renderer
     ${CMAKE_SOURCE_DIR}/src/app-context/vk_swapchain.cpp
     ${CMAKE_SOURCE_DIR}/src/app-context/vk_window.cpp
 
+    ${CMAKE_SOURCE_DIR}/src/buffer/vk_buffer.cpp
+
     ${CMAKE_SOURCE_DIR}/src/commands/vk_command_pool.cpp
     ${CMAKE_SOURCE_DIR}/src/commands/vk_command_buffer.cpp
 
