@@ -59,17 +59,25 @@ void VulkanRenderer::Init()
 
 	const std::vector<class Vertex> vertices =
 	{
-		{{0.0f, -0.5f}, {0.0f, 0.0f, 0.0f}},
-		{{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
-		{{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
+    	{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+		{{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
+		{{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
+		{{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
 	};
 
-	void* data;
+	const std::vector<uint16_t> indices =
+	{
+		0, 1, 2, 2, 3, 0
+	};
 
-	data = (void*)&vertices[0];
+	void* vertexData;
+	vertexData = (void*)&vertices[0];
 
-	buffer = new VulkanBuffer(device);
-	buffer->CreateBuffer(data, sizeof(vertices[0]) * vertices.size(), VERTEX_BUFFER);
+	vertexBuffer = new VulkanBuffer(device);
+	vertexBuffer->CreateBuffer(vertexData, sizeof(vertices[0]) * vertices.size(), VERTEX_BUFFER);
+
+	indexBuffer = new VulkanBuffer(device);
+	indexBuffer->CreateBuffer((void*)&indices[0], sizeof(indices[0]) * indices.size(), INDEX_BUFFER);
 }
 
 void VulkanRenderer::Draw(VulkanGraphicsPipeline* pipeline, VulkanRenderPass* renderpass, VulkanFramebuffers* framebuffer)
@@ -124,11 +132,13 @@ void VulkanRenderer::Draw(VulkanGraphicsPipeline* pipeline, VulkanRenderPass* re
 	scissor.extent = swapchain->GetExtent();
 	vkCmdSetScissor(vkCommandBuffer, 0, 1, &scissor);           
 
-	VkBuffer vertexBuffers[] = {buffer->GetBuffer()};
+	VkBuffer vertexBuffers[] = {vertexBuffer->GetBuffer()};
 	VkDeviceSize offsets[] = {0};
 	vkCmdBindVertexBuffers(vkCommandBuffer, 0, 1, vertexBuffers, offsets); 
+	vkCmdBindIndexBuffer(vkCommandBuffer, indexBuffer->GetBuffer(), 0, VK_INDEX_TYPE_UINT16);
 
-	vkCmdDraw(vkCommandBuffer, 3, 1, 0, 0);
+	// vkCmdDraw(vkCommandBuffer, 3, 1, 0, 0);
+	vkCmdDrawIndexed(vkCommandBuffer, 6, 1, 0, 0, 0);
 
 	renderpass->End(vulkanCommandBuffer);
 	vulkanCommandBuffer->End();
@@ -185,5 +195,6 @@ void VulkanRenderer::Destroy()
 
 	DestroySynchronizationStructures();
 	commandPool->Destroy();
-	buffer->Destroy();
+	vertexBuffer->Destroy();
+	indexBuffer->Destroy();
 }

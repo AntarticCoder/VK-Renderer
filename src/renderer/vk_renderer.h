@@ -30,7 +30,8 @@ private:
     std::vector<VkSemaphore> renderFinishedSemaphores;
     std::vector<VkFence> inFlightFences;
 
-    VulkanBuffer* buffer;
+    VulkanBuffer* vertexBuffer;
+    VulkanBuffer* indexBuffer;
 
     uint32_t currentFrame = 0;
     const int MAX_FRAMES_IN_FLIGHT = 2;

@@ -76,6 +76,10 @@
         "charconv": "cpp",
         "deque": "cpp",
         "fstream": "cpp",
-        "stack": "cpp"
+        "stack": "cpp",
+        "list": "cpp",
+        "shared_mutex": "cpp",
+        "thread": "cpp",
+        "unordered_set": "cpp"
     }
 }

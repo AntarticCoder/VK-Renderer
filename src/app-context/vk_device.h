@@ -11,9 +11,10 @@
 struct VulkanQueueFamilyIndices
 {
     std::optional<uint32_t> graphicsFamily;
+    std::optional<uint32_t> computeFamily;
     std::optional<uint32_t> presentFamily;
 
-    bool Complete() { return graphicsFamily.has_value() && presentFamily.has_value(); }
+    bool Complete() { return graphicsFamily.has_value() && presentFamily.has_value() && computeFamily.has_value();}
 };
 
 class VulkanDevice
@@ -29,6 +30,7 @@ private:
 
     VkQueue commonQueue = VK_NULL_HANDLE;
     VkQueue graphicsQueue = VK_NULL_HANDLE;
+    VkQueue computeQueue = VK_NULL_HANDLE;
     VkQueue presentQueue = VK_NULL_HANDLE;
 
     VkPhysicalDeviceMemoryProperties memoryProperties;
@@ -60,6 +62,7 @@ public:
     VkQueue GetCommonQueue();
     VkQueue GetGraphicsQueue();
     VkQueue GetPresentQueue();
+    VkQueue GetComputeQueue();
 
     VkPhysicalDeviceMemoryProperties GetMemoryProperties() { return memoryProperties; }
     VulkanQueueFamilyIndices GetQueueFamilyIndices() { return queueFamilyIndices; }
