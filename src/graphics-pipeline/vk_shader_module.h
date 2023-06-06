@@ -16,7 +16,7 @@ enum VulkanShaderStage
 class VulkanShaderModule
 {
 private:
-    VulkanDevice* device = nullptr;
+    std::shared_ptr<VulkanDevice> device;
 
     VkShaderModule shaderModule;
     VkPipelineShaderStageCreateInfo shaderStageInfo{};
@@ -26,7 +26,7 @@ private:
     std::string shaderEntryPoint; 
     bool initialized = false;
 public:
-    VulkanShaderModule(VulkanDevice* device) : device(device) {}
+    VulkanShaderModule(std::shared_ptr<VulkanDevice> device) : device(device) {}
     ~VulkanShaderModule()
     {
         if(initialized) { Destroy(); }

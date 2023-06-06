@@ -10,13 +10,13 @@
 class VulkanDescriptorSetLayout
 {
 private:
-    VulkanDevice* device = nullptr;
+    std::shared_ptr<VulkanDevice> device = nullptr;
     VulkanShaderStage shaderStage;
 
     VkDescriptorSetLayout descriptorSetLayout;
     bool initalized = false;
 public:
-    VulkanDescriptorSetLayout(VulkanDevice* device, VulkanShaderStage shaderStage) : device(device), shaderStage(shaderStage) {}
+    VulkanDescriptorSetLayout(std::shared_ptr<VulkanDevice> device, VulkanShaderStage shaderStage) : device(device), shaderStage(shaderStage) {}
     ~VulkanDescriptorSetLayout()
     {
         if(initalized) { Destroy(); }

@@ -1,4 +1,6 @@
 #pragma once
+#include <memory>
+
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
@@ -17,8 +19,8 @@ struct VulkanSwapchainSupportDetails
 class VulkanSwapchain
 {
 private:
-    VulkanWindow* window = nullptr;
-    VulkanDevice* device = nullptr;
+    std::shared_ptr<VulkanWindow> window;
+    std::shared_ptr<VulkanDevice> device;
 
     VulkanSwapchainSupportDetails supportDetails;
 
@@ -38,7 +40,7 @@ private:
 
     void CreateImageViews();
 public:
-    VulkanSwapchain(VulkanWindow* window, VulkanDevice* device) : window(window), device(device) {}
+    VulkanSwapchain(std::shared_ptr<VulkanWindow> window, std::shared_ptr<VulkanDevice> device) : window(window), device(device) {}
     ~VulkanSwapchain()
     { 
         if(initialized) { Destroy(); }

@@ -9,15 +9,15 @@
 class VulkanCommandBuffer
 {
 private:
-    VulkanDevice* device;
-    VulkanCommandPool* pool;
+    std::shared_ptr<VulkanDevice> device;
+    std::shared_ptr<VulkanCommandPool> pool;
 
     VkCommandBuffer commandBuffer;
 
     bool initialized = false;
     bool recording = false;
 public:
-    VulkanCommandBuffer(VulkanDevice* device, VulkanCommandPool* pool) : device(device), pool(pool) {}
+    VulkanCommandBuffer(std::shared_ptr<VulkanDevice> device, std::shared_ptr<VulkanCommandPool> pool) : device(device), pool(pool) {}
     ~VulkanCommandBuffer() {}
 
     void AllocateCommandBuffer();

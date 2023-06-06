@@ -2,18 +2,17 @@
 #include <definitions/vk_vertex.h>
 #include <utils/vk_utils.h>
 
-void VulkanGraphicsPipeline::CreatePipeline(VulkanDescriptorSetLayout* descriptorSetLayout)
+void VulkanGraphicsPipeline::CreatePipeline(std::shared_ptr<VulkanDescriptorSetLayout> descriptorSetLayout)
 {
     assert(!initialized);
 
     VkDevice vkDevice = device->GetLogicalDevice();
-    pipelineDescriptorSetLayout = descriptorSetLayout;
-    pipelineDescriptorSetLayouts = { pipelineDescriptorSetLayout->GetDescriptorLayout() };
+    std::vector<VkDescriptorSetLayout> descriptorSetLayouts = { descriptorSetLayout->GetDescriptorLayout() };
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     pipelineLayoutInfo.setLayoutCount = 1;
-    pipelineLayoutInfo.pSetLayouts = pipelineDescriptorSetLayouts.data();
+    pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
     pipelineLayoutInfo.pushConstantRangeCount = 0;
 
     VkResult result = vkCreatePipelineLayout(vkDevice, &pipelineLayoutInfo, nullptr, &layout);

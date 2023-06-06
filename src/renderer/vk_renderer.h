@@ -23,24 +23,24 @@
 class VulkanRenderer
 {
 private:
-    VulkanWindow* window;
-    VulkanDevice* device;
-    VulkanSwapchain* swapchain;
-    VulkanGraphicsPipeline* pipeline;
+    std::shared_ptr<VulkanWindow> window;
+    std::shared_ptr<VulkanDevice> device;
+    std::shared_ptr<VulkanSwapchain> swapchain;
+    std::shared_ptr<VulkanGraphicsPipeline> pipeline;
 
-    VulkanCommandPool* commandPool;
-    std::vector<VulkanCommandBuffer*> commandBuffers;
+    std::shared_ptr<VulkanCommandPool> commandPool;
+    std::vector<std::shared_ptr<VulkanCommandBuffer>> commandBuffers;
 
     std::vector<VkSemaphore> imageAvailableSemaphores;
     std::vector<VkSemaphore> renderFinishedSemaphores;
     std::vector<VkFence> inFlightFences;
 
-    VulkanBuffer* vertexBuffer;
-    VulkanBuffer* indexBuffer;
-    std::vector<VulkanBuffer*> uniformBuffers;
+    std::shared_ptr<VulkanBuffer> vertexBuffer;
+    std::shared_ptr<VulkanBuffer> indexBuffer;
+    std::vector<std::shared_ptr<VulkanBuffer>> uniformBuffers;
 
-    VulkanDescriptorPool* descriptorPool;
-    std::vector<VulkanDescriptorSet*> descriptorSets;
+    std::shared_ptr<VulkanDescriptorPool> descriptorPool;
+    std::vector<std::shared_ptr<VulkanDescriptorSet>> descriptorSets;
 
     UniformBufferObject ubo{};
     uint32_t currentFrame = 0;
@@ -60,11 +60,16 @@ private:
 
     bool syncStructuresCreated = false;
 public:
-    VulkanRenderer(VulkanWindow* window, VulkanDevice* device, VulkanSwapchain* swapchain) : device(device), swapchain(swapchain), window(window) { }
+    VulkanRenderer(
+        std::shared_ptr<VulkanWindow> window, 
+        std::shared_ptr<VulkanDevice> device, 
+        std::shared_ptr<VulkanSwapchain> swapchain
+    )  : device(device), swapchain(swapchain), window(window) { }
+    
     ~VulkanRenderer() {}
 
-    void Init(VulkanDescriptorSetLayout layout);
+    void Init(std::shared_ptr<VulkanDescriptorSetLayout> layout);
     void UpdateUniforms();
-    void Draw(VulkanGraphicsPipeline* pipeline, VulkanRenderPass* renderpass, VulkanFramebuffers* framebuffer);
+    void Draw(std::shared_ptr<VulkanGraphicsPipeline> pipeline, std::shared_ptr<VulkanRenderPass> renderpass, std::shared_ptr<VulkanFramebuffers> framebuffer);
     void Destroy();
 };

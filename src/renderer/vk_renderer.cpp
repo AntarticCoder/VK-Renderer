@@ -43,14 +43,14 @@ void VulkanRenderer::DestroySynchronizationStructures()
 
 void VulkanRenderer::CreateCommands()
 {
-	commandPool = new VulkanCommandPool(device);
+	commandPool = std::make_shared<VulkanCommandPool>(device);
 	commandPool->CreateCommandPool();
 
 	commandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
 
 	for(int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
 	{
-		commandBuffers[i] = new VulkanCommandBuffer(device, commandPool);
+		commandBuffers[i] = std::make_shared<VulkanCommandBuffer>(device, commandPool);
 		commandBuffers[i]->AllocateCommandBuffer();
 	}
 }
@@ -83,16 +83,16 @@ void VulkanRenderer::CreateBuffers()
 	void* vertexData;
 	vertexData = (void*)&vertices[0];
 
-	vertexBuffer = new VulkanBuffer(device);
+	vertexBuffer = std::make_shared<VulkanBuffer>(device);
 	vertexBuffer->CreateBuffer(vertexData, sizeof(vertices[0]) * vertices.size(), VERTEX_BUFFER);
 
-	indexBuffer = new VulkanBuffer(device);
+	indexBuffer = std::make_shared<VulkanBuffer>(device);
 	indexBuffer->CreateBuffer((void*)&indices[0], sizeof(indices[0]) * indices.size(), INDEX_BUFFER);
 
 	uniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
 	for(int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
 	{
-		uniformBuffers[i] = new VulkanBuffer(device);
+		uniformBuffers[i] = std::make_shared<VulkanBuffer>(device);
 		uniformBuffers[i]->CreateBuffer(&ubo, sizeof(ubo), UNIFORM_BUFFER);
 	}
 }
@@ -110,13 +110,13 @@ void VulkanRenderer::DestroyBuffers()
 
 void VulkanRenderer::CreateDescriptors(VkDescriptorSetLayout layout)
 {
-	descriptorPool = new VulkanDescriptorPool(device);
+	descriptorPool = std::make_shared<VulkanDescriptorPool>(device);
 	descriptorPool->CreateDescriptorPool();
 
 	descriptorSets.resize(MAX_FRAMES_IN_FLIGHT);
 	for(int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
 	{
-		descriptorSets[i] = new VulkanDescriptorSet(device, descriptorPool);
+		descriptorSets[i] = std::make_shared<VulkanDescriptorSet>(device, descriptorPool);
 		descriptorSets[i]->CreateDescriptorSet(sizeof(uniformBuffers[i]), *uniformBuffers[i], layout);
 	}
 }
@@ -126,12 +126,12 @@ void VulkanRenderer::DestroyDescriptors()
 	descriptorPool->Destroy();
 }
 
-void VulkanRenderer::Init(VulkanDescriptorSetLayout layout)
+void VulkanRenderer::Init(std::shared_ptr<VulkanDescriptorSetLayout> layout)
 {
 	CreateSynchronizationStructures();
 	CreateCommands();
 	CreateBuffers();
-	CreateDescriptors(layout.GetDescriptorLayout());
+	CreateDescriptors(layout->GetDescriptorLayout());
 }
 
 void VulkanRenderer::UpdateUniforms()
@@ -149,9 +149,11 @@ void VulkanRenderer::UpdateUniforms()
 	uniformBuffers[currentFrame]->UpdateBuffer(&ubo, sizeof(ubo));
 }
 
-void VulkanRenderer::Draw(VulkanGraphicsPipeline* pipeline, VulkanRenderPass* renderpass, VulkanFramebuffers* framebuffer)
+void VulkanRenderer::Draw(std::shared_ptr<VulkanGraphicsPipeline> pipeline, std::shared_ptr<VulkanRenderPass> renderpass, std::shared_ptr<VulkanFramebuffers> framebuffer)
 {
-	VulkanCommandBuffer* vulkanCommandBuffer = commandBuffers[currentFrame];
+	std::weak_ptr<VulkanCommandBuffer> vulkanCommandBufferPTR = commandBuffers[currentFrame];
+	auto vulkanCommandBuffer = vulkanCommandBufferPTR.lock();
+	if(!vulkanCommandBuffer) { std::cout << "Vulkan Command Buffer weak pointer is invalid" << std::endl; return; }
 
 	VkDevice vkDevice = device->GetLogicalDevice();
 	VkCommandBuffer vkCommandBuffer = vulkanCommandBuffer->GetCommandBuffer();

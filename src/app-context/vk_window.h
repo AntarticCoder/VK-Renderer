@@ -9,7 +9,7 @@
 class VulkanWindow
 {
 private:
-    VulkanInstance* context;
+    std::shared_ptr<VulkanInstance> context;
 
     GLFWwindow* window;
     VkSurfaceKHR surface;
@@ -28,7 +28,7 @@ public:
     }
 
     void CreateWindow();
-    void CreateSurface(VulkanInstance* appContext);
+    void CreateSurface(std::shared_ptr<VulkanInstance> appContext);
     void Destroy();
     
     GLFWwindow* GetWindow() { return window; }
