@@ -8,8 +8,9 @@
 
 enum VulkanShaderStage
 {
-    Vertex,
-    Fragment
+    NONE_SHADER_STAGE = 0,
+    VERTEX_SHADER_STAGE = 1,
+    FRAGMENT_SHADER_STAGE = 2
 };
 
 class VulkanShaderModule
@@ -36,4 +37,5 @@ public:
 
     VkShaderModule GetShaderModule() { return shaderModule; }
     VkPipelineShaderStageCreateInfo GetShaderStageCreateInfo() { return shaderStageInfo; }
+    VulkanShaderStage GetShaderStage() { return shaderStage; }
 };

@@ -21,12 +21,6 @@ int main()
     VulkanSwapchain swapchain(&window, &device);
     VulkanRenderer renderer(&window, &device, &swapchain);
 
-    VulkanShaderModule vertex(&device);
-    VulkanShaderModule fragment(&device);
-    VulkanRenderPass renderPass(&device, &swapchain);
-    VulkanGraphicsPipeline graphicsPipeline(&device, &renderPass);
-    VulkanFramebuffers framebuffers(&device, &swapchain, &renderPass);
-
     window.CreateWindow();
     context.CreateInstance();
     window.CreateSurface(&context);
@@ -34,19 +28,28 @@ int main()
     device.CreateDevice();
     swapchain.CreateSwapchain();
 
+    VulkanShaderModule vertex(&device);
+    VulkanShaderModule fragment(&device);
+    VulkanRenderPass renderPass(&device, &swapchain);
+    VulkanDescriptorSetLayout descriptorSetLayout(&device, VERTEX_SHADER_STAGE);
+    VulkanGraphicsPipeline graphicsPipeline(&device, &renderPass);
+    VulkanFramebuffers framebuffers(&device, &swapchain, &renderPass);
+
     renderPass.CreateRenderpass();
 
-    vertex.CreateShaderModule(Vertex, "/Users/nick/Programming/Graphics-Programming/VK-Renderer/resources/shaders/compiled/vert.spv");
-    fragment.CreateShaderModule(Fragment, "/Users/nick/Programming/Graphics-Programming/VK-Renderer/resources/shaders/compiled/frag.spv");
+    vertex.CreateShaderModule(VERTEX_SHADER_STAGE, "/Users/nick/Programming/Graphics-Programming/VK-Renderer/resources/shaders/compiled/vert.spv");
+    fragment.CreateShaderModule(FRAGMENT_SHADER_STAGE, "/Users/nick/Programming/Graphics-Programming/VK-Renderer/resources/shaders/compiled/frag.spv");
+
+    descriptorSetLayout.CreateDescriptorSetLayout(0, false);
 
     graphicsPipeline.AddShaderStage(&vertex);
     graphicsPipeline.AddShaderStage(&fragment);
 
-    graphicsPipeline.CreatePipeline();
+    graphicsPipeline.CreatePipeline(&descriptorSetLayout);
 
     framebuffers.CreateFramebuffers();
 
-    renderer.Init();
+    renderer.Init(descriptorSetLayout);
 
     while(!glfwWindowShouldClose(window.GetWindow()))
     {
@@ -54,6 +57,8 @@ int main()
         glfwPollEvents();
     }
     renderer.Destroy();
+
+    descriptorSetLayout.Destroy();
 
     framebuffers.Destroy();
 

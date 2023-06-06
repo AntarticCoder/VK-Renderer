@@ -14,9 +14,11 @@ void VulkanBuffer::CreateBuffer(void* data, uint32_t size, VulkanBufferUsage buf
 
     switch(bufferUsage)
     {
+        case NONE_BUFFER: std::cout << "Invalid Buffer Usage: None" << std::endl; abort();
         case VERTEX_BUFFER: bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT; break;
         case INDEX_BUFFER: bufferInfo.usage = VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT; break;
-        default: std::cout << "Buffer Usage not specified, aborting" << std::endl; abort();
+        case UNIFORM_BUFFER: bufferInfo.usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT; break;
+        default: std::cout << "Undefined Buffer Usage" << std::endl; abort();
     }
     
     VkResult result = vkCreateBuffer(vkDevice, &bufferInfo, nullptr, &buffer);
@@ -36,10 +38,14 @@ void VulkanBuffer::CreateBuffer(void* data, uint32_t size, VulkanBufferUsage buf
     result = vkBindBufferMemory(vkDevice, buffer, bufferMemory, 0);
     VK_CHECK(result);
 
-    void* bufferData;
     vkMapMemory(vkDevice, bufferMemory, 0, bufferInfo.size, 0, &bufferData);
     memcpy(bufferData, data, (size_t) bufferInfo.size);
     vkUnmapMemory(vkDevice, bufferMemory); 
+}
+
+void VulkanBuffer::UpdateBuffer(void* data, uint32_t size)
+{
+    memcpy(bufferData, data, (size_t) size);
 }
 
 void VulkanBuffer::Destroy()

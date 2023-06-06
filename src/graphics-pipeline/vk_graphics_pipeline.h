@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <iostream>
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -7,6 +8,8 @@
 #include <app-context/vk_device.h>
 #include <graphics-pipeline/vk_shader_module.h>
 #include <graphics-pipeline/vk_renderpass.h>
+
+#include <buffer/vk_descriptor_set_layout.h>
 
 class VulkanGraphicsPipeline
 {
@@ -16,7 +19,9 @@ private:
 
     VkPipeline pipeline;
     VkPipelineLayout layout;
+    VulkanDescriptorSetLayout* pipelineDescriptorSetLayout;
 
+    std::vector<VkDescriptorSetLayout> pipelineDescriptorSetLayouts;
     std::vector<VkPipelineShaderStageCreateInfo> shaderStages;
 
     bool initialized = false;
@@ -33,8 +38,13 @@ public:
         shaderStages.push_back(module->GetShaderStageCreateInfo());
     }
 
-    void CreatePipeline();
+    void CreatePipeline(VulkanDescriptorSetLayout* descriptorSetLayout);
     void Destroy();
 
     VkPipeline GetPipeline() { return pipeline; }
+    VkPipelineLayout GetPipelineLayout() { return layout; }
+    VulkanDescriptorSetLayout* GetDescriptorSetLayout()
+    { 
+        return pipelineDescriptorSetLayout;
+    }
 };

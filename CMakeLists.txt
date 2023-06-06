@@ -9,6 +9,8 @@ set(CMAKE_CXX_FLAGS "-std=c++17 -O3")
 add_subdirectory(libs/glfw)
 add_subdirectory(libs/glm)
 
+add_compile_options(-O0)
+
 find_package(Vulkan REQUIRED)
 
 if (DEFINED VULKAN_SDK_PATH)
@@ -37,6 +39,8 @@ add_executable(VK-Renderer
     ${CMAKE_SOURCE_DIR}/src/app-context/vk_window.cpp
 
     ${CMAKE_SOURCE_DIR}/src/buffer/vk_buffer.cpp
+    ${CMAKE_SOURCE_DIR}/src/buffer/vk_descriptor_set.cpp
+    ${CMAKE_SOURCE_DIR}/src/buffer/vk_descriptor_set_layout.cpp
 
     ${CMAKE_SOURCE_DIR}/src/commands/vk_command_pool.cpp
     ${CMAKE_SOURCE_DIR}/src/commands/vk_command_buffer.cpp

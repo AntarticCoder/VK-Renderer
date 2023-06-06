@@ -21,20 +21,18 @@ void VulkanShaderModule::CreateShaderModule(VulkanShaderStage stage, const std::
     shaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     switch(shaderStage)
     {
-        case VulkanShaderStage::Vertex:
-            shaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
-            break;
-        case VulkanShaderStage::Fragment:
-            shaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-            break;
-        default:
-            throw std::runtime_error("Invalid shader stage!");
+        case NONE_SHADER_STAGE: std::cout << "Invalid Shader Stage: None" << std::endl; abort();
+        case VERTEX_SHADER_STAGE: shaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT; break;
+        case FRAGMENT_SHADER_STAGE: shaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT; break;
+        default: std::cout << "Undefined Shader Stage" << std::endl; abort();
     }
 
     shaderStageInfo.module = shaderModule;
     shaderStageInfo.pName = shaderEntryPoint.c_str();
 
     initialized = true;
+
+    shaderStage = stage;
 }
 
 void VulkanShaderModule::Destroy()

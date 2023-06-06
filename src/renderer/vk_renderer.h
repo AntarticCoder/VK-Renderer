@@ -14,6 +14,11 @@
 #include <graphics-pipeline/vk_renderpass.h>
 
 #include <buffer/vk_buffer.h>
+#include <buffer/vk_descriptor_set.h>
+#include <buffer/vk_descriptor_set_layout.h>
+
+#include <definitions/vk_vertex.h>
+#include <definitions/vk_uniforms.h>
 
 class VulkanRenderer
 {
@@ -32,19 +37,34 @@ private:
 
     VulkanBuffer* vertexBuffer;
     VulkanBuffer* indexBuffer;
+    std::vector<VulkanBuffer*> uniformBuffers;
 
+    VulkanDescriptorPool* descriptorPool;
+    std::vector<VulkanDescriptorSet*> descriptorSets;
+
+    UniformBufferObject ubo{};
     uint32_t currentFrame = 0;
     const int MAX_FRAMES_IN_FLIGHT = 2;
 
     void CreateSynchronizationStructures();
     void DestroySynchronizationStructures();
 
+    void CreateCommands();
+    void DestroyCommands();
+
+    void CreateBuffers();
+    void DestroyBuffers();
+
+    void CreateDescriptors(VkDescriptorSetLayout layout);
+    void DestroyDescriptors();
+
     bool syncStructuresCreated = false;
 public:
     VulkanRenderer(VulkanWindow* window, VulkanDevice* device, VulkanSwapchain* swapchain) : device(device), swapchain(swapchain), window(window) { }
     ~VulkanRenderer() {}
 
-    void Init();
+    void Init(VulkanDescriptorSetLayout layout);
+    void UpdateUniforms();
     void Draw(VulkanGraphicsPipeline* pipeline, VulkanRenderPass* renderpass, VulkanFramebuffers* framebuffer);
     void Destroy();
 };

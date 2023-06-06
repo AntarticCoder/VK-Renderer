@@ -1,6 +1,5 @@
 #include <utils/vk_utils.h>
 #include <renderer/vk_renderer.h>
-#include <graphics-pipeline/vk_vertex.h>
 
 void VulkanRenderer::CreateSynchronizationStructures()
 {
@@ -42,10 +41,8 @@ void VulkanRenderer::DestroySynchronizationStructures()
 	syncStructuresCreated = false;
 }
 
-void VulkanRenderer::Init()
+void VulkanRenderer::CreateCommands()
 {
-	CreateSynchronizationStructures();
-
 	commandPool = new VulkanCommandPool(device);
 	commandPool->CreateCommandPool();
 
@@ -56,7 +53,15 @@ void VulkanRenderer::Init()
 		commandBuffers[i] = new VulkanCommandBuffer(device, commandPool);
 		commandBuffers[i]->AllocateCommandBuffer();
 	}
+}
 
+void VulkanRenderer::DestroyCommands()
+{
+	commandPool->Destroy();
+}
+
+void VulkanRenderer::CreateBuffers()
+{
 	const std::vector<class Vertex> vertices =
 	{
     	{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
@@ -70,6 +75,11 @@ void VulkanRenderer::Init()
 		0, 1, 2, 2, 3, 0
 	};
 
+	UniformBufferObject ubo{};
+	ubo.model = glm::mat4(0);
+	ubo.view = glm::mat4(0);
+	ubo.proj = glm::mat4(0);
+
 	void* vertexData;
 	vertexData = (void*)&vertices[0];
 
@@ -78,6 +88,65 @@ void VulkanRenderer::Init()
 
 	indexBuffer = new VulkanBuffer(device);
 	indexBuffer->CreateBuffer((void*)&indices[0], sizeof(indices[0]) * indices.size(), INDEX_BUFFER);
+
+	uniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+	for(int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+	{
+		uniformBuffers[i] = new VulkanBuffer(device);
+		uniformBuffers[i]->CreateBuffer(&ubo, sizeof(ubo), UNIFORM_BUFFER);
+	}
+}
+
+void VulkanRenderer::DestroyBuffers()
+{
+	vertexBuffer->Destroy();
+	indexBuffer->Destroy();
+
+	for(int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+	{
+		uniformBuffers[i]->Destroy();
+	}
+}
+
+void VulkanRenderer::CreateDescriptors(VkDescriptorSetLayout layout)
+{
+	descriptorPool = new VulkanDescriptorPool(device);
+	descriptorPool->CreateDescriptorPool();
+
+	descriptorSets.resize(MAX_FRAMES_IN_FLIGHT);
+	for(int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+	{
+		descriptorSets[i] = new VulkanDescriptorSet(device, descriptorPool);
+		descriptorSets[i]->CreateDescriptorSet(sizeof(uniformBuffers[i]), *uniformBuffers[i], layout);
+	}
+}
+
+void VulkanRenderer::DestroyDescriptors()
+{
+	descriptorPool->Destroy();
+}
+
+void VulkanRenderer::Init(VulkanDescriptorSetLayout layout)
+{
+	CreateSynchronizationStructures();
+	CreateCommands();
+	CreateBuffers();
+	CreateDescriptors(layout.GetDescriptorLayout());
+}
+
+void VulkanRenderer::UpdateUniforms()
+{
+	static auto startTime = std::chrono::high_resolution_clock::now();
+
+    auto currentTime = std::chrono::high_resolution_clock::now();
+    float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+
+	ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f) * 1.5f, glm::vec3(0.0f, 0.0f, 1.0f));
+	ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	ubo.proj = glm::perspective(glm::radians(45.0f), swapchain->GetExtent().width / (float) swapchain->GetExtent().width, 0.1f, 10.0f);
+
+	ubo.proj[1][1] *= -1;
+	uniformBuffers[currentFrame]->UpdateBuffer(&ubo, sizeof(ubo));
 }
 
 void VulkanRenderer::Draw(VulkanGraphicsPipeline* pipeline, VulkanRenderPass* renderpass, VulkanFramebuffers* framebuffer)
@@ -89,6 +158,8 @@ void VulkanRenderer::Draw(VulkanGraphicsPipeline* pipeline, VulkanRenderPass* re
 
 	VkQueue vkGraphicsQueue = device->GetGraphicsQueue();
 	VkQueue vkPresentQueue = device->GetPresentQueue();
+
+	VkDescriptorSet vkDescriptorSet = descriptorSets[currentFrame]->GetDescriptorSet();
 
 	VkSemaphore renderFinishedSemaphore = renderFinishedSemaphores[currentFrame];
 	VkSemaphore imageAvailableSemaphore = imageAvailableSemaphores[currentFrame];
@@ -109,6 +180,8 @@ void VulkanRenderer::Draw(VulkanGraphicsPipeline* pipeline, VulkanRenderPass* re
 		swapchain->CreateSwapchain();
 		framebuffer->CreateFramebuffers();			
 	}
+
+	UpdateUniforms();
 
 	vkResetFences(vkDevice, 1, &inFlightFences[currentFrame]);
 
@@ -138,6 +211,8 @@ void VulkanRenderer::Draw(VulkanGraphicsPipeline* pipeline, VulkanRenderPass* re
 	vkCmdBindIndexBuffer(vkCommandBuffer, indexBuffer->GetBuffer(), 0, VK_INDEX_TYPE_UINT16);
 
 	// vkCmdDraw(vkCommandBuffer, 3, 1, 0, 0);
+
+	vkCmdBindDescriptorSets(vkCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->GetPipelineLayout(), 0, 1, &vkDescriptorSet, 0, nullptr);
 	vkCmdDrawIndexed(vkCommandBuffer, 6, 1, 0, 0, 0);
 
 	renderpass->End(vulkanCommandBuffer);
@@ -194,7 +269,7 @@ void VulkanRenderer::Destroy()
 	vkDeviceWaitIdle(device->GetLogicalDevice());
 
 	DestroySynchronizationStructures();
-	commandPool->Destroy();
-	vertexBuffer->Destroy();
-	indexBuffer->Destroy();
+	DestroyCommands();
+	DestroyBuffers();
+	DestroyDescriptors();
 }
