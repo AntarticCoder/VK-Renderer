@@ -10,7 +10,7 @@
 class VulkanDescriptorSetLayout
 {
 private:
-    std::shared_ptr<VulkanDevice> device = nullptr;
+    std::shared_ptr<VulkanDevice> device;
     VulkanShaderStage shaderStage;
 
     VkDescriptorSetLayout descriptorSetLayout;

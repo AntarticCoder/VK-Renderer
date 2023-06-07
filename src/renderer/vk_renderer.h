@@ -70,6 +70,6 @@ public:
 
     void Init(std::shared_ptr<VulkanDescriptorSetLayout> layout);
     void UpdateUniforms();
-    void Draw(std::shared_ptr<VulkanGraphicsPipeline> pipeline, std::shared_ptr<VulkanRenderPass> renderpass, std::shared_ptr<VulkanFramebuffers> framebuffer);
+    void Draw(std::weak_ptr<VulkanGraphicsPipeline> pipelinePTR, std::weak_ptr<VulkanRenderPass> renderpassPTR, std::weak_ptr<VulkanFramebuffers> framebufferPTR);
     void Destroy();
 };

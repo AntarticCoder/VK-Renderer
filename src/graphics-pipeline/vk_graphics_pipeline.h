@@ -37,7 +37,7 @@ public:
         shaderStages.push_back(module->GetShaderStageCreateInfo());
     }
 
-    void CreatePipeline(std::shared_ptr<VulkanDescriptorSetLayout> descriptorSetLayout);
+    void CreatePipeline(std::weak_ptr<VulkanDescriptorSetLayout> descriptorSetLayoutPTR);
     void Destroy();
 
     VkPipeline GetPipeline() { return pipeline; }

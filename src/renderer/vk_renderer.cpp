@@ -149,11 +149,19 @@ void VulkanRenderer::UpdateUniforms()
 	uniformBuffers[currentFrame]->UpdateBuffer(&ubo, sizeof(ubo));
 }
 
-void VulkanRenderer::Draw(std::shared_ptr<VulkanGraphicsPipeline> pipeline, std::shared_ptr<VulkanRenderPass> renderpass, std::shared_ptr<VulkanFramebuffers> framebuffer)
+void VulkanRenderer::Draw(std::weak_ptr<VulkanGraphicsPipeline> pipelinePTR, std::weak_ptr<VulkanRenderPass> renderpassPTR, std::weak_ptr<VulkanFramebuffers> framebufferPTR)
 {
 	std::weak_ptr<VulkanCommandBuffer> vulkanCommandBufferPTR = commandBuffers[currentFrame];
+
+	if(vulkanCommandBufferPTR.expired()) { std::cout << "Vulkan Command Buffer weak pointer is invalid" << std::endl; return; }
+	if(pipelinePTR.expired()) { std::cout << "Vulkan Graphics Pipeline weak pointer is invalid" << std::endl; return; }
+	if(renderpassPTR.expired()) { std::cout << "Vulkan Render Pass weak pointer is invalid" << std::endl; return; }
+	if(framebufferPTR.expired()) { std::cout << "Vulkan Framebuffer weak pointer is invalid" << std::endl; return; }
+
 	auto vulkanCommandBuffer = vulkanCommandBufferPTR.lock();
-	if(!vulkanCommandBuffer) { std::cout << "Vulkan Command Buffer weak pointer is invalid" << std::endl; return; }
+	auto pipeline = pipelinePTR.lock();
+	auto renderpass = renderpassPTR.lock();
+	auto framebuffer = framebufferPTR.lock();
 
 	VkDevice vkDevice = device->GetLogicalDevice();
 	VkCommandBuffer vkCommandBuffer = vulkanCommandBuffer->GetCommandBuffer();

@@ -2,9 +2,12 @@
 #include <definitions/vk_vertex.h>
 #include <utils/vk_utils.h>
 
-void VulkanGraphicsPipeline::CreatePipeline(std::shared_ptr<VulkanDescriptorSetLayout> descriptorSetLayout)
+void VulkanGraphicsPipeline::CreatePipeline(std::weak_ptr<VulkanDescriptorSetLayout> descriptorSetLayoutPTR)
 {
     assert(!initialized);
+
+    if(descriptorSetLayoutPTR.expired()) { std::cout << "Vulkan Descriptor Set Layout weak pointer is invalid" << std::endl; return; }
+    auto descriptorSetLayout = descriptorSetLayoutPTR.lock();
 
     VkDevice vkDevice = device->GetLogicalDevice();
     std::vector<VkDescriptorSetLayout> descriptorSetLayouts = { descriptorSetLayout->GetDescriptorLayout() };

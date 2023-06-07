@@ -51,8 +51,8 @@ void VulkanDescriptorSet::CreateDescriptorSet(uint32_t size, VulkanBuffer buffer
     descriptorWrite.descriptorCount = 1;
 
     descriptorWrite.pBufferInfo = &bufferInfo;
-    descriptorWrite.pImageInfo = nullptr; // Optional
-    descriptorWrite.pTexelBufferView = nullptr; // Optional
+    descriptorWrite.pImageInfo = nullptr;
+    descriptorWrite.pTexelBufferView = nullptr;
 
     vkUpdateDescriptorSets(device->GetLogicalDevice(), 1, &descriptorWrite, 0, nullptr);
 }
