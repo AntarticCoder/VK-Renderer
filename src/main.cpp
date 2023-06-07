@@ -1,4 +1,5 @@
 #include <iostream>
+#include <memory>
 
 #include <app-context/vk_instance.h>
 #include <app-context/vk_device.h>
@@ -15,64 +16,64 @@ int main()
 {
     std::cout << "VK-Renderer Starting Up!" << std::endl;
 
-    VulkanWindow window("VK Renderer", 800, 600);
-    VulkanInstance context;
-    VulkanDevice device(&context, &window);
-    VulkanSwapchain swapchain(&window, &device);
-    VulkanRenderer renderer(&window, &device, &swapchain);
+    std::shared_ptr<VulkanWindow> window = std::make_shared<VulkanWindow>("VK Renderer", 800, 600);
+    std::shared_ptr<VulkanInstance> context = std::make_shared<VulkanInstance>();
+    std::shared_ptr<VulkanDevice> device = std::make_shared<VulkanDevice>(context, window);
+    std::shared_ptr<VulkanSwapchain> swapchain = std::make_shared<VulkanSwapchain>(window, device);
+    std::shared_ptr<VulkanRenderer> renderer = std::make_shared<VulkanRenderer>(window, device, swapchain);
 
-    window.CreateWindow();
-    context.CreateInstance();
-    window.CreateSurface(&context);
-    device.SelectPhysicalDevice();
-    device.CreateDevice();
-    swapchain.CreateSwapchain();
+    window->CreateWindow();
+    context->CreateInstance();
+    window->CreateSurface(context);
+    device->SelectPhysicalDevice();
+    device->CreateDevice();
+    swapchain->CreateSwapchain();
 
-    VulkanShaderModule vertex(&device);
-    VulkanShaderModule fragment(&device);
-    VulkanRenderPass renderPass(&device, &swapchain);
-    VulkanDescriptorSetLayout descriptorSetLayout(&device, VERTEX_SHADER_STAGE);
-    VulkanGraphicsPipeline graphicsPipeline(&device, &renderPass);
-    VulkanFramebuffers framebuffers(&device, &swapchain, &renderPass);
+    std::shared_ptr<VulkanShaderModule> vertex= std::make_shared<VulkanShaderModule>(device);
+    std::shared_ptr<VulkanShaderModule> fragment = std::make_shared<VulkanShaderModule>(device);
+    std::shared_ptr<VulkanRenderPass> renderPass = std::make_shared<VulkanRenderPass>(device, swapchain);
+    std::shared_ptr<VulkanDescriptorSetLayout> descriptorSetLayout = std::make_shared<VulkanDescriptorSetLayout>(device, VERTEX_SHADER_STAGE);
+    std::shared_ptr<VulkanGraphicsPipeline> graphicsPipeline = std::make_shared<VulkanGraphicsPipeline>(device, renderPass);
+    std::shared_ptr<VulkanFramebuffers> framebuffers = std::make_shared<VulkanFramebuffers>(device, swapchain, renderPass);
 
-    renderPass.CreateRenderpass();
+    renderPass->CreateRenderpass();
 
-    vertex.CreateShaderModule(VERTEX_SHADER_STAGE, "/Users/nick/Programming/Graphics-Programming/VK-Renderer/resources/shaders/compiled/vert.spv");
-    fragment.CreateShaderModule(FRAGMENT_SHADER_STAGE, "/Users/nick/Programming/Graphics-Programming/VK-Renderer/resources/shaders/compiled/frag.spv");
+    vertex->CreateShaderModule(VERTEX_SHADER_STAGE, "/Users/nick/Programming/Graphics-Programming/VK-Renderer/resources/shaders/compiled/vert.spv");
+    fragment->CreateShaderModule(FRAGMENT_SHADER_STAGE, "/Users/nick/Programming/Graphics-Programming/VK-Renderer/resources/shaders/compiled/frag.spv");
 
-    descriptorSetLayout.CreateDescriptorSetLayout(0, false);
+    descriptorSetLayout->CreateDescriptorSetLayout(0, false);
 
-    graphicsPipeline.AddShaderStage(&vertex);
-    graphicsPipeline.AddShaderStage(&fragment);
+    graphicsPipeline->AddShaderStage(vertex);
+    graphicsPipeline->AddShaderStage(fragment);
 
-    graphicsPipeline.CreatePipeline(&descriptorSetLayout);
+    graphicsPipeline->CreatePipeline(descriptorSetLayout);
 
-    framebuffers.CreateFramebuffers();
+    framebuffers->CreateFramebuffers();
 
-    renderer.Init(descriptorSetLayout);
+    renderer->Init(descriptorSetLayout);
 
-    while(!glfwWindowShouldClose(window.GetWindow()))
+    while(!glfwWindowShouldClose(window->GetWindow()))
     {
-        renderer.Draw(&graphicsPipeline, &renderPass, &framebuffers);
+        renderer->Draw(graphicsPipeline, renderPass, framebuffers);
         glfwPollEvents();
     }
-    renderer.Destroy();
+    renderer->Destroy();
 
-    descriptorSetLayout.Destroy();
+    descriptorSetLayout->Destroy();
 
-    framebuffers.Destroy();
+    framebuffers->Destroy();
 
-    graphicsPipeline.Destroy();
+    graphicsPipeline->Destroy();
 
-    vertex.Destroy();
-    fragment.Destroy();
+    vertex->Destroy();
+    fragment->Destroy();
 
-    renderPass.Destroy();
+    renderPass->Destroy();
 
-    swapchain.Destroy();
-    device.Destroy();
-    window.Destroy();
-    context.Destroy();
+    swapchain->Destroy();
+    device->Destroy();
+    window->Destroy();
+    context->Destroy();
 
     std::cout << "VK Renderer Shutting Down!" << std::endl;
     return 0;

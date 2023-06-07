@@ -16,7 +16,7 @@ enum VulkanBufferUsage
 class VulkanBuffer
 {
 private:
-    VulkanDevice* device = nullptr;
+    std::shared_ptr<VulkanDevice> device;
 
     VkBuffer buffer;
     VkDeviceMemory bufferMemory;
@@ -24,7 +24,7 @@ private:
     void* bufferData;
     bool initalized = false;
 public:
-    VulkanBuffer(VulkanDevice* device) : device(device) {}
+    VulkanBuffer(std::shared_ptr<VulkanDevice> device) : device(device) {}
     ~VulkanBuffer()
     {
         if(initalized) { Destroy(); }

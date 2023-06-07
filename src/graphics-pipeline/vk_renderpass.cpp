@@ -62,7 +62,7 @@ void VulkanRenderPass::Destroy()
     initialized = false;
 }
 
-void VulkanRenderPass::Begin(VulkanCommandBuffer* commandBuffer, VulkanSwapchain* swapchain, std::vector<VkFramebuffer> framebuffers, uint32_t imageIndex)
+void VulkanRenderPass::Begin(std::shared_ptr<VulkanCommandBuffer> commandBuffer, std::shared_ptr<VulkanSwapchain> swapchain, std::vector<VkFramebuffer> framebuffers, uint32_t imageIndex)
 {
     assert(initialized);
     assert(!active);
@@ -83,7 +83,7 @@ void VulkanRenderPass::Begin(VulkanCommandBuffer* commandBuffer, VulkanSwapchain
     active = true;
 }
 
-void VulkanRenderPass::End(VulkanCommandBuffer* commandBuffer)
+void VulkanRenderPass::End(std::shared_ptr<VulkanCommandBuffer> commandBuffer)
 {
     assert(active);
     vkCmdEndRenderPass(commandBuffer->GetCommandBuffer());

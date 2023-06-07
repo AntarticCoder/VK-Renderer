@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 #include <optional>
 #include <vector>
 
@@ -20,8 +21,8 @@ struct VulkanQueueFamilyIndices
 class VulkanDevice
 {
 private:
-    VulkanInstance* appContext = nullptr;
-    VulkanWindow* window = nullptr;
+    std::shared_ptr<VulkanInstance> appContext;
+    std::shared_ptr<VulkanWindow> window;
 
     VkPhysicalDevice physicalDevice;
     VkDevice logicalDevice;
@@ -42,7 +43,7 @@ private:
     bool CheckForDeviceExtensions(VkPhysicalDevice device);
     bool SwapchainSupported(VkPhysicalDevice device);
 public:
-    VulkanDevice(VulkanInstance* appContext, VulkanWindow* window) : appContext(appContext), window(window) {}
+    VulkanDevice(std::shared_ptr<VulkanInstance> appContext, std::shared_ptr<VulkanWindow> window) : appContext(appContext), window(window) {}
     ~VulkanDevice()
     {
         if(initialized) { Destroy(); }

@@ -17,7 +17,7 @@ void VulkanWindow::CreateWindow()
     if(window == NULL) { std::cout << "Failed to create GLFW Window: " << glfwGetError(NULL) << std::endl; }
 }
 
-void VulkanWindow::CreateSurface(VulkanInstance* appContext)
+void VulkanWindow::CreateSurface(std::shared_ptr<VulkanInstance> appContext)
 {
     VkResult result = glfwCreateWindowSurface(appContext->GetInstance(), window, nullptr, &surface);
     VK_CHECK(result);

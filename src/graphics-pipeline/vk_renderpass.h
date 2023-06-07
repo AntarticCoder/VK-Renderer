@@ -14,15 +14,15 @@ class VulkanRenderPass;
 class VulkanRenderPass
 {  
 private:
-    VulkanDevice* device;
-    VulkanSwapchain* swapchain;
+    std::shared_ptr<VulkanDevice> device;
+    std::shared_ptr<VulkanSwapchain> swapchain;
 
     VkRenderPass renderpass;
 
     bool initialized = false;
     bool active = false;
 public:
-    VulkanRenderPass(VulkanDevice* device, VulkanSwapchain* swapchain) : device(device), swapchain(swapchain) {}
+    VulkanRenderPass(std::shared_ptr<VulkanDevice> device, std::shared_ptr<VulkanSwapchain> swapchain) : device(device), swapchain(swapchain) {}
     ~VulkanRenderPass()
     {
         if(initialized) { Destroy(); }
@@ -31,8 +31,8 @@ public:
     void CreateRenderpass();
     void Destroy();
 
-    void Begin(VulkanCommandBuffer* commandBuffer, VulkanSwapchain* swapchain,  std::vector<VkFramebuffer> framebuffers, uint32_t imageIndex);
-    void End(VulkanCommandBuffer* commandBuffer);
+    void Begin(std::shared_ptr<VulkanCommandBuffer> commandBuffer, std::shared_ptr<VulkanSwapchain> swapchain, std::vector<VkFramebuffer> framebuffers, uint32_t imageIndex);
+    void End(std::shared_ptr<VulkanCommandBuffer> commandBuffer);
 
     VkRenderPass GetRenderPass() { return renderpass; }
 };
@@ -40,15 +40,15 @@ public:
 class VulkanFramebuffers
 {
 private:
-    VulkanDevice* device;
-    VulkanSwapchain* swapchain;
-    VulkanRenderPass* renderpass;
+    std::shared_ptr<VulkanDevice> device;
+    std::shared_ptr<VulkanSwapchain> swapchain;
+    std::shared_ptr<VulkanRenderPass> renderpass;
 
     std::vector<VkFramebuffer> framebuffers;
 
     bool initialized = false;
 public:
-    VulkanFramebuffers(VulkanDevice* device, VulkanSwapchain* swapchain, VulkanRenderPass* renderpass) : device(device), swapchain(swapchain), renderpass(renderpass) {}
+    VulkanFramebuffers(std::shared_ptr<VulkanDevice> device, std::shared_ptr<VulkanSwapchain> swapchain, std::shared_ptr<VulkanRenderPass> renderpass) : device(device), swapchain(swapchain), renderpass(renderpass) {}
     ~VulkanFramebuffers()
     {
         if(initialized) { Destroy(); }

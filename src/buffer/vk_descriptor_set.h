@@ -9,12 +9,12 @@
 class VulkanDescriptorPool
 {
 private:
-    VulkanDevice* device = nullptr;
+    std::shared_ptr<VulkanDevice> device;
     VkDescriptorPool descriptorPool;
 
     bool initalized = false;
 public:
-    VulkanDescriptorPool(VulkanDevice* device) : device(device){}
+    VulkanDescriptorPool(std::shared_ptr<VulkanDevice> device) : device(device){}
     ~VulkanDescriptorPool()
     {
         if(initalized) { Destroy(); }
@@ -29,12 +29,12 @@ public:
 class VulkanDescriptorSet
 {
 private:
-    VulkanDevice* device = nullptr;
-    VulkanDescriptorPool* descriptorPool = nullptr;
+    std::shared_ptr<VulkanDevice> device;
+    std::shared_ptr<VulkanDescriptorPool> descriptorPool;
 
     VkDescriptorSet descriptorSet;
 public:
-    VulkanDescriptorSet(VulkanDevice* device, VulkanDescriptorPool* descriptorPool) : device(device), descriptorPool(descriptorPool) {}
+    VulkanDescriptorSet(std::shared_ptr<VulkanDevice> device, std::shared_ptr<VulkanDescriptorPool> descriptorPool) : device(device), descriptorPool(descriptorPool) {}
     ~VulkanDescriptorSet() {}
 
     void CreateDescriptorSet(uint32_t size, VulkanBuffer buffer, VkDescriptorSetLayout layout);

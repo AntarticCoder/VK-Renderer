@@ -8,13 +8,13 @@
 class VulkanCommandPool
 {
 private:
-    VulkanDevice* device;
+    std::shared_ptr<VulkanDevice> device;
 
     VkCommandPool commandPool;
 
      bool initialized = false;
 public:
-    VulkanCommandPool(VulkanDevice* device) : device(device) {}
+    VulkanCommandPool(std::shared_ptr<VulkanDevice> device) : device(device) {}
     ~VulkanCommandPool()
     {
         if(initialized) { Destroy(); }
