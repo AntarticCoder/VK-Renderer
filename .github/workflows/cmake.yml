@@ -1,4 +1,4 @@
-name: CMake Build Project
+name: Build Project
 
 on:
   push:
@@ -7,10 +7,11 @@ on:
     branches: [ "main" ]
 
 env:
-  BUILD_TYPE: Debug
+  BUILD_TYPE: Release
 
 jobs:
   build-ubutnu:
+    name: Build Project - Ubuntu
     runs-on: ubuntu-latest
 
     steps:
@@ -20,13 +21,19 @@ jobs:
        vulkan-query-version: 1.3.204.0
        vulkan-components: Vulkan-Headers, Vulkan-Loader
        vulkan-use-cache: true
-    - name: Install Dependincies
+    - name: Install dependencies
       run: sudo apt-get install libxinerama-dev; sudo apt-get install libxcursor-dev; sudo apt install xorg-dev
        
-    - name: Pull Submodules
-      run: git submodule init; git submodule update
+    - name: Initialize submodules
+      run: git submodule init
+    
+    - name: Update submodules
+      run: git submodule update
 
-    - name: Configure CMake and Build
-      run: sh build.sh
+    - name: Configure CMake
+      run: cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE .
+
+    - name: Build with Make
+      run: make
       
 
