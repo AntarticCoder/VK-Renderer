@@ -20,6 +20,8 @@ jobs:
        vulkan-query-version: 1.3.204.0
        vulkan-components: Vulkan-Headers, Vulkan-Loader
        vulkan-use-cache: true
+    - name: Install Dependincies
+      run: sudo apt-get install libxinerama-dev; sudo apt-get install libxcursor-dev; sudo apt install xorg-dev
        
     - name: Pull Submodules
       run: git submodule init; git submodule update
