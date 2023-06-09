@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 #include <string>
 
 #define GLFW_INCLUDE_VULKAN
