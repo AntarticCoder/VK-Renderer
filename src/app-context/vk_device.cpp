@@ -1,4 +1,5 @@
 #include <set>
+#include <cassert>
 
 #include <utils/vk_utils.h>
 #include <app-context/vk_device.h>

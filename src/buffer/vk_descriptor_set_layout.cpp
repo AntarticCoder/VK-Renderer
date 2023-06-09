@@ -1,3 +1,5 @@
+#include <cassert>
+
 #include <buffer/vk_descriptor_set_layout.h>
 #include <utils/vk_utils.h>
 

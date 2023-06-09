@@ -1,3 +1,5 @@
+#include <cassert>
+
 #include <commands/vk_command_pool.h>
 #include <utils/vk_utils.h>
 

@@ -1,3 +1,5 @@
+#include <cassert>
+
 #include <graphics-pipeline/vk_graphics_pipeline.h>
 #include <definitions/vk_vertex.h>
 #include <utils/vk_utils.h>

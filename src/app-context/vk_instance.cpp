@@ -2,6 +2,7 @@
 #include <vector>
 #include <map>
 #include <set>
+#include <cassert>
 
 #include <utils/vk_utils.h>
 #include <app-context/vk_instance.h>
@@ -44,7 +45,10 @@ void VulkanInstance::CreateInstance()
     VkInstanceCreateInfo instanceCreateInfo = {};
     instanceCreateInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     instanceCreateInfo.pApplicationInfo = &applicationInfo; 
-    instanceCreateInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+
+    #ifdef __APPLE__
+        instanceCreateInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+    #endif
 
     instanceCreateInfo.enabledExtensionCount = instanceExtensions.size();
     instanceCreateInfo.ppEnabledExtensionNames = &instanceExtensions[0];

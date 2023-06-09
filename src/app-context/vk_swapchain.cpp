@@ -1,3 +1,7 @@
+#include <cassert>
+#include <algorithm>
+#include <limits>
+
 #include <utils/vk_utils.h>
 #include <app-context/vk_swapchain.h>
 
@@ -43,6 +47,7 @@ VkExtent2D VulkanSwapchain::ChooseSwapchainExtent(const VkSurfaceCapabilitiesKHR
         actualExtent.height = std::clamp(actualExtent.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
         return actualExtent;
     }
+    return VkExtent2D();
 }
 
 VulkanSwapchainSupportDetails VulkanSwapchain::GetSwapchainSupportDetails()

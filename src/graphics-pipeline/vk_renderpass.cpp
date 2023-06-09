@@ -1,3 +1,5 @@
+#include <cassert>
+
 #include <graphics-pipeline/vk_renderpass.h>
 #include <utils/vk_utils.h>
 
