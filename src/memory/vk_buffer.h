@@ -5,6 +5,7 @@
 #include <GLFW/glfw3.h>
 
 #include <app-context/vk_device.h>
+#include <memory/vk_vma_allocator.h>
 
 enum VulkanBufferUsage
 {
@@ -18,14 +19,15 @@ class VulkanBuffer
 {
 private:
     std::shared_ptr<VulkanDevice> device;
+    std::shared_ptr<VulkanMemoryAllocator> vmaAllocator;
 
     VkBuffer buffer;
-    VkDeviceMemory bufferMemory;
+    VmaAllocation allocation;
 
     void* bufferData;
     bool initalized = false;
 public:
-    VulkanBuffer(std::shared_ptr<VulkanDevice> device) : device(device) {}
+    VulkanBuffer(std::shared_ptr<VulkanDevice> device, std::shared_ptr<VulkanMemoryAllocator> vmaAllocator) : device(device), vmaAllocator(vmaAllocator) {}
     ~VulkanBuffer()
     {
         if(initalized) { Destroy(); }

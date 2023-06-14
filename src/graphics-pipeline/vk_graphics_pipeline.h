@@ -10,7 +10,7 @@
 #include <graphics-pipeline/vk_shader_module.h>
 #include <graphics-pipeline/vk_renderpass.h>
 
-#include <buffer/vk_descriptor_set_layout.h>
+#include <descriptors/vk_descriptor_set_layout.h>
 
 class VulkanGraphicsPipeline
 {

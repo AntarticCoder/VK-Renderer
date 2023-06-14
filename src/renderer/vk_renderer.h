@@ -13,9 +13,9 @@
 #include <graphics-pipeline/vk_graphics_pipeline.h>
 #include <graphics-pipeline/vk_renderpass.h>
 
-#include <buffer/vk_buffer.h>
-#include <buffer/vk_descriptor_set.h>
-#include <buffer/vk_descriptor_set_layout.h>
+#include <memory/vk_buffer.h>
+#include <descriptors/vk_descriptor_set.h>
+#include <descriptors/vk_descriptor_set_layout.h>
 
 #include <definitions/vk_vertex.h>
 #include <definitions/vk_uniforms.h>
@@ -24,6 +24,7 @@ class VulkanRenderer
 {
 private:
     std::shared_ptr<VulkanWindow> window;
+    std::shared_ptr<VulkanInstance> instance;
     std::shared_ptr<VulkanDevice> device;
     std::shared_ptr<VulkanSwapchain> swapchain;
     std::shared_ptr<VulkanGraphicsPipeline> pipeline;
@@ -38,6 +39,8 @@ private:
     std::shared_ptr<VulkanBuffer> vertexBuffer;
     std::shared_ptr<VulkanBuffer> indexBuffer;
     std::vector<std::shared_ptr<VulkanBuffer>> uniformBuffers;
+
+    std::shared_ptr<VulkanMemoryAllocator> allocator;
 
     std::shared_ptr<VulkanDescriptorPool> descriptorPool;
     std::vector<std::shared_ptr<VulkanDescriptorSet>> descriptorSets;
@@ -61,10 +64,11 @@ private:
     bool syncStructuresCreated = false;
 public:
     VulkanRenderer(
+        std::shared_ptr<VulkanInstance> instance,
         std::shared_ptr<VulkanWindow> window, 
         std::shared_ptr<VulkanDevice> device, 
         std::shared_ptr<VulkanSwapchain> swapchain
-    )  : device(device), swapchain(swapchain), window(window) { }
+    )  : instance(instance), device(device), swapchain(swapchain), window(window) { }
     
     ~VulkanRenderer() {}
 

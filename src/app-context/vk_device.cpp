@@ -6,7 +6,8 @@
 #include <app-context/vk_window.h>
 
 std::vector<const char*> requiredDeviceExtensions = {
-    VK_KHR_SWAPCHAIN_EXTENSION_NAME
+    VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+    VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME
 };
 
 bool VulkanDevice::CheckForDeviceExtensions(VkPhysicalDevice device)

@@ -6,9 +6,6 @@ set(CMAKE_CXX_COMPILER gcc)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin) 
 set(CMAKE_CXX_FLAGS "-std=c++17 -O3")
 
-add_subdirectory(libs/glfw)
-add_subdirectory(libs/glm)
-
 add_compile_options(-O0)
 
 find_package(Vulkan REQUIRED)
@@ -28,6 +25,10 @@ else()
 	message(STATUS "Using Vulkan lib at: ${Vulkan_LIBRARIES}")
 endif()
 
+add_subdirectory(libs/glfw)
+add_subdirectory(libs/glm)
+add_subdirectory(libs/VulkanMemoryAllocator)
+
 project(VK-Renderer CXX C)
 
 add_executable(VK-Renderer
@@ -38,9 +39,8 @@ add_executable(VK-Renderer
     ${CMAKE_SOURCE_DIR}/src/app-context/vk_swapchain.cpp
     ${CMAKE_SOURCE_DIR}/src/app-context/vk_window.cpp
 
-    ${CMAKE_SOURCE_DIR}/src/buffer/vk_buffer.cpp
-    ${CMAKE_SOURCE_DIR}/src/buffer/vk_descriptor_set.cpp
-    ${CMAKE_SOURCE_DIR}/src/buffer/vk_descriptor_set_layout.cpp
+    ${CMAKE_SOURCE_DIR}/src/descriptors/vk_descriptor_set.cpp
+    ${CMAKE_SOURCE_DIR}/src/descriptors/vk_descriptor_set_layout.cpp
 
     ${CMAKE_SOURCE_DIR}/src/commands/vk_command_pool.cpp
     ${CMAKE_SOURCE_DIR}/src/commands/vk_command_buffer.cpp
@@ -48,6 +48,9 @@ add_executable(VK-Renderer
     ${CMAKE_SOURCE_DIR}/src/graphics-pipeline/vk_shader_module.cpp
     ${CMAKE_SOURCE_DIR}/src/graphics-pipeline/vk_renderpass.cpp
     ${CMAKE_SOURCE_DIR}/src/graphics-pipeline/vk_graphics_pipeline.cpp
+
+    ${CMAKE_SOURCE_DIR}/src/memory/vk_buffer.cpp
+    ${CMAKE_SOURCE_DIR}/src/memory/vk_vma_allocator.cpp
 
     ${CMAKE_SOURCE_DIR}/src/renderer/vk_renderer.cpp
 )
@@ -62,6 +65,8 @@ target_include_directories(VK-Renderer PRIVATE
     ${CMAKE_SOURCE_DIR}/libs/glm/glm/gtx
     ${CMAKE_SOURCE_DIR}/libs/glm/glm/simd
 
+    ${CMAKE_SOURCE_DIR}/libs/VulkanMemoryAllocator/include
+
     ${Vulkan_INCLUDE_DIRS}
     
     ${CMAKE_SOURCE_DIR}/libs
@@ -69,7 +74,7 @@ target_include_directories(VK-Renderer PRIVATE
 )
 
 add_compile_options(-Wno-dev)
-target_link_libraries(VK-Renderer PUBLIC ${Vulkan_LIBRARIES} glfw glm stdc++)
+target_link_libraries(VK-Renderer PUBLIC Vulkan::Vulkan glfw glm VulkanMemoryAllocator stdc++)
 
 set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CMAKE_COMMAND} -E time")
 set_property(TARGET VK-Renderer PROPERTY RULE_LAUNCH_COMPILE "${CMAKE_COMMAND} -E time")

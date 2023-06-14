@@ -1,5 +1,5 @@
-#include <buffer/vk_descriptor_set.h>
-#include <buffer/vk_buffer.h>
+#include <descriptors/vk_descriptor_set.h>
+#include <memory/vk_buffer.h>
 #include <utils/vk_utils.h>
 
 void VulkanDescriptorPool::CreateDescriptorPool()

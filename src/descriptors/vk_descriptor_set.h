@@ -4,7 +4,7 @@
 #include <GLFW/glfw3.h>
 
 #include <app-context/vk_device.h>
-#include <buffer/vk_buffer.h>
+#include <memory/vk_buffer.h>
 
 class VulkanDescriptorPool
 {

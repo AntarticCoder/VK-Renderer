@@ -37,7 +37,7 @@ void VulkanInstance::CreateInstance()
     applicationInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
     applicationInfo.pEngineName = "No Engine";
     applicationInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-    applicationInfo.apiVersion = VK_API_VERSION_1_0;
+    applicationInfo.apiVersion = VK_API_VERSION_1_2;
 
     std::vector<const char*> instanceExtensions = GetInstanceExtensions();
     const std::vector<const char*> validationLayers = { "VK_LAYER_KHRONOS_validation" };
