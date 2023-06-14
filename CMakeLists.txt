@@ -6,9 +6,6 @@ set(CMAKE_CXX_COMPILER gcc)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin) 
 set(CMAKE_CXX_FLAGS "-std=c++17 -O3")
 
-add_subdirectory(libs/glfw)
-add_subdirectory(libs/glm)
-
 add_compile_options(-O0)
 
 find_package(Vulkan REQUIRED)
@@ -27,6 +24,10 @@ if (NOT Vulkan_FOUND)
 else()
 	message(STATUS "Using Vulkan lib at: ${Vulkan_LIBRARIES}")
 endif()
+
+add_subdirectory(libs/glfw)
+add_subdirectory(libs/glm)
+add_subdirectory(libs/VulkanMemoryAllocator)
 
 project(VK-Renderer CXX C)
 
@@ -62,6 +63,8 @@ target_include_directories(VK-Renderer PRIVATE
     ${CMAKE_SOURCE_DIR}/libs/glm/glm/gtx
     ${CMAKE_SOURCE_DIR}/libs/glm/glm/simd
 
+    ${CMAKE_SOURCE_DIR}/libs/VulkanMemoryAllocator/include
+
     ${Vulkan_INCLUDE_DIRS}
     
     ${CMAKE_SOURCE_DIR}/libs
@@ -69,7 +72,7 @@ target_include_directories(VK-Renderer PRIVATE
 )
 
 add_compile_options(-Wno-dev)
-target_link_libraries(VK-Renderer PUBLIC ${Vulkan_LIBRARIES} glfw glm stdc++)
+target_link_libraries(VK-Renderer PUBLIC Vulkan::Vulkan glfw glm VulkanMemoryAllocator stdc++)
 
 set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CMAKE_COMMAND} -E time")
 set_property(TARGET VK-Renderer PROPERTY RULE_LAUNCH_COMPILE "${CMAKE_COMMAND} -E time")

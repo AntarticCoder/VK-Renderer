@@ -4,3 +4,7 @@
 [submodule "libs/glfw"]
 	path = libs/glfw
 	url = https://github.com/glfw/glfw.git
+[submodule "libs/VulkanMemoryAllocator"]
+	path = libs/VulkanMemoryAllocator
+	url = https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
+	ignore = dirty
