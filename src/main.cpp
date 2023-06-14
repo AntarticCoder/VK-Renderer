@@ -17,14 +17,14 @@ int main()
     std::cout << "VK-Renderer Starting Up!" << std::endl;
 
     std::shared_ptr<VulkanWindow> window = std::make_shared<VulkanWindow>("VK Renderer", 800, 600);
-    std::shared_ptr<VulkanInstance> context = std::make_shared<VulkanInstance>();
-    std::shared_ptr<VulkanDevice> device = std::make_shared<VulkanDevice>(context, window);
+    std::shared_ptr<VulkanInstance> instance = std::make_shared<VulkanInstance>();
+    std::shared_ptr<VulkanDevice> device = std::make_shared<VulkanDevice>(instance, window);
     std::shared_ptr<VulkanSwapchain> swapchain = std::make_shared<VulkanSwapchain>(window, device);
-    std::shared_ptr<VulkanRenderer> renderer = std::make_shared<VulkanRenderer>(window, device, swapchain);
+    std::shared_ptr<VulkanRenderer> renderer = std::make_shared<VulkanRenderer>(instance, window, device, swapchain);
 
     window->CreateWindow();
-    context->CreateInstance();
-    window->CreateSurface(context);
+    instance->CreateInstance();
+    window->CreateSurface(instance);
     device->SelectPhysicalDevice();
     device->CreateDevice();
     swapchain->CreateSwapchain();
@@ -73,7 +73,7 @@ int main()
     swapchain->Destroy();
     device->Destroy();
     window->Destroy();
-    context->Destroy();
+    instance->Destroy();
 
     std::cout << "VK Renderer Shutting Down!" << std::endl;
     return 0;

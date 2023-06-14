@@ -83,19 +83,22 @@ void VulkanRenderer::CreateBuffers()
 	ubo.view = glm::mat4(0);
 	ubo.proj = glm::mat4(0);
 
+	allocator = std::make_shared<VulkanMemoryAllocator>(instance, device);
+	allocator->CreateAllocator();
+
 	void* vertexData;
 	vertexData = (void*)&vertices[0];
 
-	vertexBuffer = std::make_shared<VulkanBuffer>(device);
+	vertexBuffer = std::make_shared<VulkanBuffer>(device, allocator);
 	vertexBuffer->CreateBuffer(vertexData, sizeof(vertices[0]) * vertices.size(), VERTEX_BUFFER);
 
-	indexBuffer = std::make_shared<VulkanBuffer>(device);
+	indexBuffer = std::make_shared<VulkanBuffer>(device, allocator);
 	indexBuffer->CreateBuffer((void*)&indices[0], sizeof(indices[0]) * indices.size(), INDEX_BUFFER);
 
 	uniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
 	for(int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
 	{
-		uniformBuffers[i] = std::make_shared<VulkanBuffer>(device);
+		uniformBuffers[i] = std::make_shared<VulkanBuffer>(device, allocator);
 		uniformBuffers[i]->CreateBuffer(&ubo, sizeof(ubo), UNIFORM_BUFFER);
 	}
 }
@@ -109,6 +112,8 @@ void VulkanRenderer::DestroyBuffers()
 	{
 		uniformBuffers[i]->Destroy();
 	}
+
+	allocator->Destroy();
 }
 
 void VulkanRenderer::CreateDescriptors(VkDescriptorSetLayout layout)
