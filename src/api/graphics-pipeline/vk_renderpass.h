@@ -3,10 +3,10 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
-#include <app-context/vk_device.h>
-#include <app-context/vk_swapchain.h>
+#include <api/app-context/vk_device.h>
+#include <api/app-context/vk_swapchain.h>
 
-#include <commands/vk_command_buffer.h>
+#include <api/commands/vk_command_buffer.h>
 
 class VulkanFramebuffers;
 class VulkanRenderPass;

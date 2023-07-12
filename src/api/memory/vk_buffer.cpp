@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include <memory/vk_buffer.h>
+#include <api/memory/vk_buffer.h>
 #include <utils/vk_utils.h>
 
 void VulkanBuffer::CreateBuffer(void* data, uint32_t size, VulkanBufferUsage bufferUsage)

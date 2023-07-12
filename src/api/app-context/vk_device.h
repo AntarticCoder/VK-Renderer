@@ -6,8 +6,8 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
-#include <app-context/vk_instance.h>
-#include <app-context/vk_window.h>
+#include <api/app-context/vk_instance.h>
+#include <api/app-context/vk_window.h>
 
 struct VulkanQueueFamilyIndices
 {

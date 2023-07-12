@@ -1,14 +1,14 @@
 #include <iostream>
 #include <memory>
 
-#include <app-context/vk_instance.h>
-#include <app-context/vk_device.h>
-#include <app-context/vk_swapchain.h>
-#include <app-context/vk_window.h>
+#include <api/app-context/vk_instance.h>
+#include <api/app-context/vk_device.h>
+#include <api/app-context/vk_swapchain.h>
+#include <api/app-context/vk_window.h>
 
-#include <graphics-pipeline/vk_shader_module.h>
-#include <graphics-pipeline/vk_renderpass.h>
-#include <graphics-pipeline/vk_graphics_pipeline.h>
+#include <api/graphics-pipeline/vk_shader_module.h>
+#include <api/graphics-pipeline/vk_renderpass.h>
+#include <api/graphics-pipeline/vk_graphics_pipeline.h>
 
 #include <renderer/vk_renderer.h>
 
