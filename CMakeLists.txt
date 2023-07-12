@@ -34,23 +34,23 @@ project(VK-Renderer CXX C)
 add_executable(VK-Renderer
     ${CMAKE_SOURCE_DIR}/src/main.cpp
 
-    ${CMAKE_SOURCE_DIR}/src/app-context/vk_instance.cpp
-    ${CMAKE_SOURCE_DIR}/src/app-context/vk_device.cpp
-    ${CMAKE_SOURCE_DIR}/src/app-context/vk_swapchain.cpp
-    ${CMAKE_SOURCE_DIR}/src/app-context/vk_window.cpp
+    ${CMAKE_SOURCE_DIR}/src/api/app-context/vk_instance.cpp
+    ${CMAKE_SOURCE_DIR}/src/api/app-context/vk_device.cpp
+    ${CMAKE_SOURCE_DIR}/src/api/app-context/vk_swapchain.cpp
+    ${CMAKE_SOURCE_DIR}/src/api/app-context/vk_window.cpp
 
-    ${CMAKE_SOURCE_DIR}/src/descriptors/vk_descriptor_set.cpp
-    ${CMAKE_SOURCE_DIR}/src/descriptors/vk_descriptor_set_layout.cpp
+    ${CMAKE_SOURCE_DIR}/src/api/descriptors/vk_descriptor_set.cpp
+    ${CMAKE_SOURCE_DIR}/src/api/descriptors/vk_descriptor_set_layout.cpp
 
-    ${CMAKE_SOURCE_DIR}/src/commands/vk_command_pool.cpp
-    ${CMAKE_SOURCE_DIR}/src/commands/vk_command_buffer.cpp
+    ${CMAKE_SOURCE_DIR}/src/api/commands/vk_command_pool.cpp
+    ${CMAKE_SOURCE_DIR}/src/api/commands/vk_command_buffer.cpp
 
-    ${CMAKE_SOURCE_DIR}/src/graphics-pipeline/vk_shader_module.cpp
-    ${CMAKE_SOURCE_DIR}/src/graphics-pipeline/vk_renderpass.cpp
-    ${CMAKE_SOURCE_DIR}/src/graphics-pipeline/vk_graphics_pipeline.cpp
+    ${CMAKE_SOURCE_DIR}/src/api/graphics-pipeline/vk_shader_module.cpp
+    ${CMAKE_SOURCE_DIR}/src/api/graphics-pipeline/vk_renderpass.cpp
+    ${CMAKE_SOURCE_DIR}/src/api/graphics-pipeline/vk_graphics_pipeline.cpp
 
-    ${CMAKE_SOURCE_DIR}/src/memory/vk_buffer.cpp
-    ${CMAKE_SOURCE_DIR}/src/memory/vk_vma_allocator.cpp
+    ${CMAKE_SOURCE_DIR}/src/api/memory/vk_buffer.cpp
+    ${CMAKE_SOURCE_DIR}/src/api/memory/vk_vma_allocator.cpp
 
     ${CMAKE_SOURCE_DIR}/src/renderer/vk_renderer.cpp
 )

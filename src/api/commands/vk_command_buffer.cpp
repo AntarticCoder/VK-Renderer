@@ -1,6 +1,6 @@
 #include <cassert>
 
-#include <commands/vk_command_buffer.h>
+#include <api/commands/vk_command_buffer.h>
 #include <utils/vk_utils.h>
 
 void VulkanCommandBuffer::AllocateCommandBuffer()

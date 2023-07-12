@@ -1,6 +1,6 @@
 #include <cassert>
 
-#include <graphics-pipeline/vk_shader_module.h>
+#include <api/graphics-pipeline/vk_shader_module.h>
 #include <utils/vk_utils.h>
 #include <utils/vk_io.h>
 

@@ -5,7 +5,7 @@
 #include <cassert>
 
 #include <utils/vk_utils.h>
-#include <app-context/vk_instance.h>
+#include <api/app-context/vk_instance.h>
 
 std::vector<const char*> VulkanInstance::GetInstanceExtensions()
 {

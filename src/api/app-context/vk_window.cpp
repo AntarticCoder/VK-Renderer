@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include <utils/vk_utils.h>
-#include <app-context/vk_window.h>
+#include <api/app-context/vk_window.h>
 
 bool VulkanWindow::framebufferResized = false;
 

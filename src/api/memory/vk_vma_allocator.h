@@ -1,8 +1,8 @@
 #pragma once
 #include <cassert>
 
-#include <app-context/vk_instance.h>
-#include <app-context/vk_device.h>
+#include <api/app-context/vk_instance.h>
+#include <api/app-context/vk_device.h>
 
 #define VMA_VULKAN_VERSION 1002000
 #include "vk_mem_alloc.h"

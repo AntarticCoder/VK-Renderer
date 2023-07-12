@@ -1,6 +1,6 @@
 #include <cassert>
 
-#include <descriptors/vk_descriptor_set_layout.h>
+#include <api/descriptors/vk_descriptor_set_layout.h>
 #include <utils/vk_utils.h>
 
 void VulkanDescriptorSetLayout::CreateDescriptorSetLayout(uint32_t binding, bool allShaderStages)
