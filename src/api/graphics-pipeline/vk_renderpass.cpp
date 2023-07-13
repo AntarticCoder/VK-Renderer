@@ -1,10 +1,10 @@
 #include <cassert>
 
-#include <graphics-pipeline/vk_renderpass.h>
+#include <api/graphics-pipeline/vk_renderpass.h>
 #include <utils/vk_utils.h>
 
-#include <commands/vk_command_buffer.h>
-#include <app-context/vk_swapchain.h>
+#include <api/commands/vk_command_buffer.h>
+#include <api/app-context/vk_swapchain.h>
 
 void VulkanRenderPass::CreateRenderpass()
 {

@@ -4,8 +4,8 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
-#include <app-context/vk_device.h>
-#include <memory/vk_vma_allocator.h>
+#include <api/app-context/vk_device.h>
+#include <api/memory/vk_vma_allocator.h>
 
 enum VulkanBufferUsage
 {

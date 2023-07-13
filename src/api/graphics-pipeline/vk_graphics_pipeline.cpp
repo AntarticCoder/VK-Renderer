@@ -1,7 +1,7 @@
 #include <cassert>
 
-#include <graphics-pipeline/vk_graphics_pipeline.h>
-#include <definitions/vk_vertex.h>
+#include <api/graphics-pipeline/vk_graphics_pipeline.h>
+#include <api/definitions/vk_vertex.h>
 #include <utils/vk_utils.h>
 
 void VulkanGraphicsPipeline::CreatePipeline(std::weak_ptr<VulkanDescriptorSetLayout> descriptorSetLayoutPTR)

@@ -2,8 +2,8 @@
 #include <cassert>
 
 #include <utils/vk_utils.h>
-#include <app-context/vk_device.h>
-#include <app-context/vk_window.h>
+#include <api/app-context/vk_device.h>
+#include <api/app-context/vk_window.h>
 
 std::vector<const char*> requiredDeviceExtensions = {
     VK_KHR_SWAPCHAIN_EXTENSION_NAME,
