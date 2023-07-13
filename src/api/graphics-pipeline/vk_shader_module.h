@@ -5,6 +5,7 @@
 #include <GLFW/glfw3.h>
 
 #include <api/app-context/vk_device.h>
+#include <utils/vk_api_object.h>
 
 enum VulkanShaderStage
 {
@@ -13,7 +14,7 @@ enum VulkanShaderStage
     FRAGMENT_SHADER_STAGE = 2
 };
 
-class VulkanShaderModule
+class VulkanShaderModule : public VulkanAPIObject
 {
 private:
     std::shared_ptr<VulkanDevice> device;
@@ -24,16 +25,12 @@ private:
 
     std::string shaderPath;
     std::string shaderEntryPoint; 
-    bool initialized = false;
 public:
     VulkanShaderModule(std::shared_ptr<VulkanDevice> device) : device(device) {}
-    ~VulkanShaderModule()
-    {
-        if(initialized) { Destroy(); }
-    }
+    ~VulkanShaderModule() {}
 
     void CreateShaderModule(VulkanShaderStage stage, const std::string filePath, std::string entryPoint = "main");
-    void Destroy();
+    void Destroy() override;
 
     VkShaderModule GetShaderModule() { return shaderModule; }
     VkPipelineShaderStageCreateInfo GetShaderStageCreateInfo() { return shaderStageInfo; }

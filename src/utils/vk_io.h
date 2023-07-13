@@ -2,7 +2,7 @@
 #include <vector>
 #include <fstream>
 
-static std::vector<char> ReadFile(const std::string& filePath)
+std::vector<char> ReadFile(const std::string& filePath)
 {
     std::ifstream file(filePath, std::ios::ate | std::ios::binary);
 

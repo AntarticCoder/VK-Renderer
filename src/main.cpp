@@ -38,8 +38,8 @@ int main()
 
     renderPass->CreateRenderpass();
 
-    vertex->CreateShaderModule(VERTEX_SHADER_STAGE, "/Users/nick/Programming/Graphics-Programming/VK-Renderer/resources/shaders/compiled/vert.spv");
-    fragment->CreateShaderModule(FRAGMENT_SHADER_STAGE, "/Users/nick/Programming/Graphics-Programming/VK-Renderer/resources/shaders/compiled/frag.spv");
+    vertex->CreateShaderModule(VERTEX_SHADER_STAGE, "/resources/shaders/compiled/vert.spv");
+    fragment->CreateShaderModule(FRAGMENT_SHADER_STAGE, "/resources/shaders/compiled/frag.spv");
 
     descriptorSetLayout->CreateDescriptorSetLayout(0, false);
 

@@ -4,24 +4,20 @@
 #include <GLFW/glfw3.h>
 
 #include <api/app-context/vk_device.h>
+#include <utils/vk_api_object.h>
 
-class VulkanCommandPool
+class VulkanCommandPool : public VulkanAPIObject
 {
 private:
     std::shared_ptr<VulkanDevice> device;
 
     VkCommandPool commandPool;
-
-     bool initialized = false;
 public:
     VulkanCommandPool(std::shared_ptr<VulkanDevice> device) : device(device) {}
-    ~VulkanCommandPool()
-    {
-        if(initialized) { Destroy(); }
-    }
+    ~VulkanCommandPool() {}
 
     void CreateCommandPool();
-    void Destroy();
+    void Destroy() override;
 
     VkCommandPool GetCommandPool() { return commandPool; }
 };

@@ -6,6 +6,7 @@
 
 #include <api/app-context/vk_device.h>
 #include <api/memory/vk_vma_allocator.h>
+#include <utils/vk_api_object.h>
 
 enum VulkanBufferUsage
 {
@@ -15,7 +16,7 @@ enum VulkanBufferUsage
     UNIFORM_BUFFER = 3
 };
 
-class VulkanBuffer
+class VulkanBuffer : public VulkanAPIObject
 {
 private:
     std::shared_ptr<VulkanDevice> device;
@@ -25,17 +26,13 @@ private:
     VmaAllocation allocation;
 
     void* bufferData;
-    bool initalized = false;
 public:
     VulkanBuffer(std::shared_ptr<VulkanDevice> device, std::shared_ptr<VulkanMemoryAllocator> vmaAllocator) : device(device), vmaAllocator(vmaAllocator) {}
-    ~VulkanBuffer()
-    {
-        if(initalized) { Destroy(); }
-    }
+    ~VulkanBuffer() {}
 
     void CreateBuffer(void* data, uint32_t size, VulkanBufferUsage bufferUsage);
     void UpdateBuffer(void* data, uint32_t size);
-    void Destroy();
+    void Destroy() override;
 
     VkBuffer GetBuffer() { return buffer; }
 };

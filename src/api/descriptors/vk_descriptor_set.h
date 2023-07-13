@@ -5,23 +5,19 @@
 
 #include <api/app-context/vk_device.h>
 #include <api/memory/vk_buffer.h>
+#include <utils/vk_api_object.h>
 
-class VulkanDescriptorPool
+class VulkanDescriptorPool : public VulkanAPIObject
 {
 private:
     std::shared_ptr<VulkanDevice> device;
     VkDescriptorPool descriptorPool;
-
-    bool initalized = false;
 public:
     VulkanDescriptorPool(std::shared_ptr<VulkanDevice> device) : device(device){}
-    ~VulkanDescriptorPool()
-    {
-        if(initalized) { Destroy(); }
-    }
+    ~VulkanDescriptorPool() {}
 
     void CreateDescriptorPool();
-    void Destroy();
+    void Destroy() override;
 
     VkDescriptorPool GetDescriptorPool() { return descriptorPool; }
 };

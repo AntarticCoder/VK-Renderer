@@ -5,7 +5,7 @@
 
 void VulkanDescriptorSetLayout::CreateDescriptorSetLayout(uint32_t binding, bool allShaderStages)
 {
-    assert(!initalized);
+    assert(!initialized);
 
     VkDescriptorSetLayoutBinding uboLayoutBinding{};
     uboLayoutBinding.binding = 0;
@@ -29,13 +29,13 @@ void VulkanDescriptorSetLayout::CreateDescriptorSetLayout(uint32_t binding, bool
     VkResult result = vkCreateDescriptorSetLayout(device->GetLogicalDevice(), &layoutInfo, nullptr, &descriptorSetLayout);
     VK_CHECK(result);
 
-    initalized = true;
+    initialized = true;
 }
 
 void VulkanDescriptorSetLayout::Destroy()
 {
-    assert(initalized);
+    assert(initialized);
     vkDestroyDescriptorSetLayout(device->GetLogicalDevice(), descriptorSetLayout, nullptr);
 
-    initalized = false;
+    initialized = false;
 }

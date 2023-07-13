@@ -6,6 +6,7 @@
 
 #include <api/app-context/vk_window.h>
 #include <api/app-context/vk_device.h>
+#include <utils/vk_api_object.h>
 
 struct VulkanSwapchainSupportDetails
 {
@@ -16,7 +17,7 @@ struct VulkanSwapchainSupportDetails
     bool UseableSwapchain() { return !formats.empty() && !presentModes.empty(); }
 };
 
-class VulkanSwapchain
+class VulkanSwapchain : VulkanAPIObject
 {
 private:
     std::shared_ptr<VulkanWindow> window;
@@ -41,14 +42,11 @@ private:
     void CreateImageViews();
 public:
     VulkanSwapchain(std::shared_ptr<VulkanWindow> window, std::shared_ptr<VulkanDevice> device) : window(window), device(device) {}
-    ~VulkanSwapchain()
-    { 
-        if(initialized) { Destroy(); }
-    }
+    ~VulkanSwapchain() {}
 
     void CreateSwapchain();
     void RecreateSwapchain();
-    void Destroy();
+    void Destroy() override;
 
     VkFormat GetFormat() { return swapchainImageFormat; }
     VkExtent2D GetExtent() { return swapchainExtent; }

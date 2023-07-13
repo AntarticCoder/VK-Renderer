@@ -5,13 +5,14 @@
 
 #include <api/app-context/vk_device.h>
 #include <api/app-context/vk_swapchain.h>
-
 #include <api/commands/vk_command_buffer.h>
+#include <utils/vk_api_object.h>
 
 class VulkanFramebuffers;
 class VulkanRenderPass;
 
-class VulkanRenderPass
+// Need to decouple herer
+class VulkanRenderPass : public VulkanAPIObject
 {  
 private:
     std::shared_ptr<VulkanDevice> device;
@@ -19,17 +20,13 @@ private:
 
     VkRenderPass renderpass;
 
-    bool initialized = false;
     bool active = false;
 public:
     VulkanRenderPass(std::shared_ptr<VulkanDevice> device, std::shared_ptr<VulkanSwapchain> swapchain) : device(device), swapchain(swapchain) {}
-    ~VulkanRenderPass()
-    {
-        if(initialized) { Destroy(); }
-    }
+    ~VulkanRenderPass() {}
 
     void CreateRenderpass();
-    void Destroy();
+    void Destroy() override;
 
     void Begin(std::shared_ptr<VulkanCommandBuffer> commandBuffer, std::shared_ptr<VulkanSwapchain> swapchain, std::vector<VkFramebuffer> framebuffers, uint32_t imageIndex);
     void End(std::shared_ptr<VulkanCommandBuffer> commandBuffer);
@@ -37,7 +34,7 @@ public:
     VkRenderPass GetRenderPass() { return renderpass; }
 };
 
-class VulkanFramebuffers
+class VulkanFramebuffers : public VulkanAPIObject
 {
 private:
     std::shared_ptr<VulkanDevice> device;
@@ -45,17 +42,12 @@ private:
     std::shared_ptr<VulkanRenderPass> renderpass;
 
     std::vector<VkFramebuffer> framebuffers;
-
-    bool initialized = false;
 public:
     VulkanFramebuffers(std::shared_ptr<VulkanDevice> device, std::shared_ptr<VulkanSwapchain> swapchain, std::shared_ptr<VulkanRenderPass> renderpass) : device(device), swapchain(swapchain), renderpass(renderpass) {}
-    ~VulkanFramebuffers()
-    {
-        if(initialized) { Destroy(); }
-    }
+    ~VulkanFramebuffers() {}
 
     void CreateFramebuffers();
-    void Destroy();
+    void Destroy() override;
 
     std::vector<VkFramebuffer> GetFramebuffers() { return framebuffers; }
 };

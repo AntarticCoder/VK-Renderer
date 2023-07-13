@@ -3,9 +3,13 @@
 *.DS_Store
 *.spv
 
-CMakeFiles/
-bin
-build
+/bin
+/build
+/CMakeFiles
+/doxydoc
+
 CMakeCache.txt
 cmake_install.cmake
 Makefile
+CMakeDoxyfile.in
+CMakeDoxygenDefaults.cmake
