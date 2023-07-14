@@ -25,6 +25,10 @@ else()
 	message(STATUS "Using Vulkan lib at: ${Vulkan_LIBRARIES}")
 endif()
 
+file(GLOB IMGUI_BASE_FILES ${CMAKE_SOURCE_DIR}/libs/imgui/*.cpp)
+set(IMGUI_VULKAN_FILES ${CMAKE_SOURCE_DIR}/libs/imgui/backends/imgui_impl_vulkan.cpp)
+set(IMGUI_WINDOW_FILES ${CMAKE_SOURCE_DIR}/libs/imgui/backends/imgui_impl_glfw.cpp)
+
 add_subdirectory(libs/glfw)
 add_subdirectory(libs/glm)
 add_subdirectory(libs/VulkanMemoryAllocator)
@@ -53,6 +57,10 @@ add_executable(VK-Renderer
     ${CMAKE_SOURCE_DIR}/src/api/memory/vk_vma_allocator.cpp
 
     ${CMAKE_SOURCE_DIR}/src/renderer/vk_renderer.cpp
+
+    ${IMGUI_BASE_FILES}
+    ${IMGUI_VULKAN_FILES}
+    ${IMGUI_WINDOW_FILES}
 )
 
 target_include_directories(VK-Renderer PRIVATE
@@ -66,6 +74,8 @@ target_include_directories(VK-Renderer PRIVATE
     ${CMAKE_SOURCE_DIR}/libs/glm/glm/simd
 
     ${CMAKE_SOURCE_DIR}/libs/VulkanMemoryAllocator/include
+
+    ${CMAKE_SOURCE_DIR}/libs/imgui
 
     ${Vulkan_INCLUDE_DIRS}
     

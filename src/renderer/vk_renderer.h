@@ -45,9 +45,13 @@ private:
     std::shared_ptr<VulkanDescriptorPool> descriptorPool;
     std::vector<std::shared_ptr<VulkanDescriptorSet>> descriptorSets;
 
+    std::shared_ptr<VulkanRenderPass> renderpass;
+
     UniformBufferObject ubo{};
     uint32_t currentFrame = 0;
     const int MAX_FRAMES_IN_FLIGHT = 2;
+
+    VkDescriptorPool imguiPool;
 
     void CreateSynchronizationStructures();
     void DestroySynchronizationStructures();
@@ -67,10 +71,15 @@ public:
         std::shared_ptr<VulkanInstance> instance,
         std::shared_ptr<VulkanWindow> window, 
         std::shared_ptr<VulkanDevice> device, 
-        std::shared_ptr<VulkanSwapchain> swapchain
-    )  : instance(instance), device(device), swapchain(swapchain), window(window) { }
+        std::shared_ptr<VulkanSwapchain> swapchain,
+        std::shared_ptr<VulkanRenderPass> renderpass
+    )  : instance(instance), device(device), swapchain(swapchain), window(window), renderpass(renderpass) { }
     
     ~VulkanRenderer() {}
+
+    void InitImgui();
+    void DrawImgui(VkCommandBuffer cmd);
+    void DestroyImgui();
 
     void Init(std::shared_ptr<VulkanDescriptorSetLayout> layout);
     void UpdateUniforms();

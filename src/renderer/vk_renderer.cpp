@@ -4,6 +4,9 @@
 #include <utils/vk_utils.h>
 #include <renderer/vk_renderer.h>
 
+#include <imgui/backends/imgui_impl_vulkan.h>
+#include <imgui/backends/imgui_impl_glfw.h>
+
 void VulkanRenderer::CreateSynchronizationStructures()
 {
 	VkDevice vkDevice = device->GetLogicalDevice();
@@ -134,12 +137,89 @@ void VulkanRenderer::DestroyDescriptors()
 	descriptorPool->Destroy();
 }
 
+void VulkanRenderer::InitImgui()
+{
+	VkDescriptorPoolSize pool_sizes[] =
+	{
+		{ VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
+		{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000 },
+		{ VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000 },
+		{ VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000 },
+		{ VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000 },
+		{ VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000 },
+		{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000 },
+		{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000 },
+		{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000 },
+		{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000 },
+		{ VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000 }
+	};
+
+	VkDescriptorPoolCreateInfo pool_info = {};
+	pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+	pool_info.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
+	pool_info.maxSets = 1000;
+	pool_info.poolSizeCount = std::size(pool_sizes);
+	pool_info.pPoolSizes = pool_sizes;
+
+	VkResult result = vkCreateDescriptorPool(device->GetLogicalDevice(), &pool_info, nullptr, &imguiPool);
+    VK_CHECK(result);
+
+    ImGui_ImplVulkan_InitInfo init_info = {};
+	init_info.Instance = instance->GetInstance();
+	init_info.PhysicalDevice = device->GetPhysicalDevice();
+	init_info.Device = device->GetLogicalDevice();
+	init_info.Queue = device->GetGraphicsQueue();
+	init_info.DescriptorPool = imguiPool;
+	init_info.MinImageCount = 3;
+	init_info.ImageCount = 3;
+	init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
+
+	IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  
+
+    ImGui_ImplGlfw_InitForVulkan(window->GetWindow(), true);
+
+	ImGui_ImplVulkan_Init(&init_info, renderpass->GetRenderPass());
+
+	std::unique_ptr<VulkanCommandBuffer> cmd = std::make_unique<VulkanCommandBuffer>(device, commandPool);
+	cmd->AllocateCommandBuffer();
+
+	cmd->Begin();
+	ImGui_ImplVulkan_CreateFontsTexture(cmd->GetCommandBuffer());
+	cmd->End();
+
+	ImGui_ImplVulkan_DestroyFontUploadObjects();
+}
+
+void VulkanRenderer::DrawImgui(VkCommandBuffer cmd)
+{
+	ImGui_ImplVulkan_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+
+	ImGui::NewFrame();
+	ImGui::ShowDemoWindow();
+	ImGui::Render();
+
+	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmd);
+}
+
+void VulkanRenderer::DestroyImgui()
+{
+	vkDestroyDescriptorPool(device->GetLogicalDevice(), imguiPool, nullptr);
+	ImGui_ImplVulkan_Shutdown();
+}
+
 void VulkanRenderer::Init(std::shared_ptr<VulkanDescriptorSetLayout> layout)
 {
 	CreateSynchronizationStructures();
 	CreateCommands();
 	CreateBuffers();
 	CreateDescriptors(layout->GetDescriptorLayout());
+
+	InitImgui();
 }
 
 void VulkanRenderer::UpdateUniforms()
@@ -233,6 +313,8 @@ void VulkanRenderer::Draw(std::weak_ptr<VulkanGraphicsPipeline> pipelinePTR, std
 	vkCmdBindDescriptorSets(vkCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->GetPipelineLayout(), 0, 1, &vkDescriptorSet, 0, nullptr);
 	vkCmdDrawIndexed(vkCommandBuffer, 6, 1, 0, 0, 0);
 
+	DrawImgui(vkCommandBuffer);
+
 	renderpass->End(vulkanCommandBuffer);
 	vulkanCommandBuffer->End();
 
@@ -290,4 +372,6 @@ void VulkanRenderer::Destroy()
 	DestroyCommands();
 	DestroyBuffers();
 	DestroyDescriptors();
+
+	DestroyImgui();
 }

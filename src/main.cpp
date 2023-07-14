@@ -20,7 +20,6 @@ int main()
     std::shared_ptr<VulkanInstance> instance = std::make_shared<VulkanInstance>();
     std::shared_ptr<VulkanDevice> device = std::make_shared<VulkanDevice>(instance, window);
     std::shared_ptr<VulkanSwapchain> swapchain = std::make_shared<VulkanSwapchain>(window, device);
-    std::shared_ptr<VulkanRenderer> renderer = std::make_shared<VulkanRenderer>(instance, window, device, swapchain);
 
     window->CreateWindow();
     instance->CreateInstance();
@@ -38,8 +37,8 @@ int main()
 
     renderPass->CreateRenderpass();
 
-    vertex->CreateShaderModule(VERTEX_SHADER_STAGE, "/resources/shaders/compiled/vert.spv");
-    fragment->CreateShaderModule(FRAGMENT_SHADER_STAGE, "/resources/shaders/compiled/frag.spv");
+    vertex->CreateShaderModule(VERTEX_SHADER_STAGE, "resources/shaders/compiled/vert.spv");
+    fragment->CreateShaderModule(FRAGMENT_SHADER_STAGE, "resources/shaders/compiled/frag.spv");
 
     descriptorSetLayout->CreateDescriptorSetLayout(0, false);
 
@@ -50,12 +49,13 @@ int main()
 
     framebuffers->CreateFramebuffers();
 
+    std::shared_ptr<VulkanRenderer> renderer = std::make_shared<VulkanRenderer>(instance, window, device, swapchain, renderPass);
     renderer->Init(descriptorSetLayout);
 
     while(!glfwWindowShouldClose(window->GetWindow()))
     {
-        renderer->Draw(graphicsPipeline, renderPass, framebuffers);
         glfwPollEvents();
+        renderer->Draw(graphicsPipeline, renderPass, framebuffers);
     }
     renderer->Destroy();
 
